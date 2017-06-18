@@ -1,0 +1,18 @@
+{
+	"ImportPath": "github.com/drichelson/usb-test",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v79",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/drichelson/libusb",
+			"Rev": "8ad0351e841fafc0ee43cd12e5957d59e10692aa"
+		},
+		{
+			"ImportPath": "github.com/lucasb-eyer/go-colorful",
+			"Rev": "c900de9dbbc73129068f5af6a823068fc5f2308c"
+		}
+	]
+}
