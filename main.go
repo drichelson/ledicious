@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"github.com/drichelson/usb-test/usb"
 	"github.com/lucasb-eyer/go-colorful"
+	"github.com/ojrac/opensimplex-go"
+	"github.com/yvasiyarov/go-metrics"
 	"log"
+	"math"
 	"time"
 )
 
@@ -19,6 +22,10 @@ var (
 	rows   = make([][]*BallPixel, RowCount)
 	cols   = make([][]*BallPixel, ColumnCount)
 )
+
+type Animation interface {
+	frame(time float64)
+}
 
 type BallPixel struct {
 	col      int
@@ -1073,7 +1080,53 @@ func init() {
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
 	usb.Initialize()
-	test()
+	//test()
+	var a Animation
+	a = &OpenSimplexAnimation{
+		noise: opensimplex.NewWithSeed(time.Now().UnixNano()),
+		histo: metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewUniformSample(expectedPixelCount*1000)),
+	}
+	startTime := time.Now()
+	checkPointTime := startTime
+	frameCount := 0
+	for {
+		timeSinceStartSeconds := time.Since(startTime).Seconds()
+		a.frame(timeSinceStartSeconds)
+		//w := float64(time.Since(startTime).Nanoseconds())
+		//fmt.Printf("%f\n", w)
+		//w += 0.005
+
+		render()
+		reset()
+		//time.Sleep(100 * time.Millisecond)
+		frameCount++
+		if frameCount%1000 == 0 {
+			newCheckPointTime := time.Now()
+			fmt.Printf("Avg FPS for past 1000 frames: %v\n", 1000.0/time.Since(checkPointTime).Seconds())
+			checkPointTime = newCheckPointTime
+		}
+		//fmt.Printf("histo: min: %v median: %v, max: %v\n", histo.Min(), histo.Percentile(0.5), histo.Max())
+	}
+}
+
+type OpenSimplexAnimation struct {
+	noise *opensimplex.Noise
+	histo metrics.Histogram
+	//w     float64
+}
+
+func (a *OpenSimplexAnimation) frame(time float64) {
+	for _, p := range pixels {
+		if !p.disabled {
+			noiseVal := a.noise.Eval4(p.x, p.y, p.z, time/5.0)
+			noiseValNormalized := math.Max(math.Min((noiseVal+1.0)/2.0, 1.0), 0.0)
+			h := 360 * noiseValNormalized
+			c := colorful.Hsv(h, 1.0, noiseValNormalized)
+			p.color = &c
+			//fmt.Printf("%v\n", noiseVal)
+			a.histo.Update(int64(h))
+		}
+	}
 }
 
 //Teensy:
@@ -1090,7 +1143,7 @@ func render() {
 	for i, p := range pixels {
 		colors[i] = *p.color
 	}
-	go usb.Render(colors, 0.6)
+	usb.Render(colors, 0.6)
 }
 
 func test() {
