@@ -37,7 +37,7 @@ func Initialize() {
 	}
 }
 
-func Render(pixels []*colorful.Color, brightness float64) {
+func Render(pixels []colorful.Color, brightness float64) {
 	//fmt.Printf("color count: %d\n", len(pixels))
 	data := make([]byte, len(pixels)*3+3)
 	data[0] = '*'
@@ -45,11 +45,11 @@ func Render(pixels []*colorful.Color, brightness float64) {
 	data[2] = 2
 
 	for i, c := range pixels {
-		if c == nil {
-			c = &colorful.Color{} //is this black?
-		} else {
-			//fmt.Printf("%+v", *c)
-		}
+		//if c == nil {
+		//	c = &colorful.Color{} //is this black?
+		//} else {
+		//	fmt.Printf("%+v", *c)
+		//}
 		c.R = c.R * brightness
 		c.G = c.G * brightness
 		c.B = c.B * brightness

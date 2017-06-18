@@ -16,7 +16,6 @@ const (
 
 var (
 	pixels []*BallPixel
-	colors []*colorful.Color
 	rows   = make([][]*BallPixel, RowCount)
 	cols   = make([][]*BallPixel, ColumnCount)
 )
@@ -1041,7 +1040,6 @@ func init() {
 			pixels[i] = &BallPixel{disabled: true}
 		}
 		pixels[i].color = &colorful.Color{}
-		colors = append(colors, pixels[i].color)
 	}
 
 	//for pixelCount := len(colors); pixelCount < expectedPixelCount; pixelCount++ {
@@ -1066,7 +1064,6 @@ func init() {
 	fmt.Printf("pixel count: %d\n", len(pixels))
 	fmt.Printf("row count: %d\n", len(rows))
 	fmt.Printf("col count: %d\n", len(cols))
-	fmt.Printf("color count: %d\n", len(colors))
 }
 
 //func (p *BallPixel) setColor(color *colorful.Color) {
@@ -1083,10 +1080,16 @@ func main() {
 
 func reset() {
 	for i, _ := range pixels {
-		pixels[i].color.R = 0.0
-		pixels[i].color.G = 0.0
-		pixels[i].color.B = 0.0
+		pixels[i].color = &colorful.Color{}
 	}
+}
+
+func render() {
+	colors := make([]colorful.Color, len(pixels))
+	for i, p := range pixels {
+		colors[i] = *p.color
+	}
+	go usb.Render(colors, 0.6)
 }
 
 func Init() {
@@ -1098,10 +1101,10 @@ func Init() {
 		for _, pixel := range row {
 			pixel.color.R = 1.0
 		}
-		usb.Render(colors, 0.6)
-		time.Sleep(500 * time.Millisecond)
+		render()
+		time.Sleep(100 * time.Millisecond)
 	}
-	usb.Render(colors, 0.6)
+	render()
 
 	for i, col := range cols {
 		fmt.Printf("column: %d\n", i)
@@ -1109,8 +1112,8 @@ func Init() {
 		for _, pixel := range col {
 			pixel.color.R = 1.0
 		}
-		usb.Render(colors, 0.6)
-		time.Sleep(500 * time.Millisecond)
+		render()
+		time.Sleep(100 * time.Millisecond)
 	}
 
 	//start := time.Now()
