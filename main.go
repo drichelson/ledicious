@@ -7,7 +7,6 @@ import (
 	"github.com/ojrac/opensimplex-go"
 	"github.com/yvasiyarov/go-metrics"
 	"log"
-	"math"
 	"time"
 )
 
@@ -18,9 +17,10 @@ const (
 )
 
 var (
-	pixels []*BallPixel
-	rows   = make([][]*BallPixel, RowCount)
-	cols   = make([][]*BallPixel, ColumnCount)
+	pixels   []*BallPixel
+	rows     = make([][]*BallPixel, RowCount)
+	cols     = make([][]*BallPixel, ColumnCount)
+	renderCh = make(chan []colorful.Color, 1)
 )
 
 type Animation interface {
@@ -1080,11 +1080,18 @@ func init() {
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
 	usb.Initialize()
+
+	go func() {
+		for {
+			usb.Render(<- renderCh, 0.6)
+		}
+	}()
+
 	//test()
 	var a Animation
 	a = &OpenSimplexAnimation{
 		noise: opensimplex.NewWithSeed(time.Now().UnixNano()),
-		histo: metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewUniformSample(expectedPixelCount*1000)),
+		histo: metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*1000, 1.0)),
 	}
 	startTime := time.Now()
 	checkPointTime := startTime
@@ -1119,14 +1126,26 @@ func (a *OpenSimplexAnimation) frame(time float64) {
 	for _, p := range pixels {
 		if !p.disabled {
 			noiseVal := a.noise.Eval4(p.x, p.y, p.z, time/5.0)
-			noiseValNormalized := math.Max(math.Min((noiseVal+1.0)/2.0, 1.0), 0.0)
+			a.histo.Update(int64(noiseVal * 1000.0))
+
+			noiseValNormalized := a.normalizeNoiseValue(noiseVal)
+			//math.Max(math.Min((noiseVal+1.0)/2.0, 1.0), 0.0)
 			h := 360 * noiseValNormalized
 			c := colorful.Hsv(h, 1.0, noiseValNormalized)
 			p.color = &c
 			//fmt.Printf("%v\n", noiseVal)
-			a.histo.Update(int64(h))
 		}
 	}
+}
+
+// takes an arbitrary float and normalizes it to a range between 0-1.0
+// based on the histogram's min and max. This should give us a smooth adjustment based on the past
+// 1000 frames' worth of noise values.
+func (a *OpenSimplexAnimation) normalizeNoiseValue(noiseVal float64) float64 {
+	//histoMin := float64(a.histo.Min()) / 1000.0
+	//histoMax := float64(a.histo.Max()) / 1000.0
+
+	return noiseVal
 }
 
 //Teensy:
@@ -1143,7 +1162,7 @@ func render() {
 	for i, p := range pixels {
 		colors[i] = *p.color
 	}
-	usb.Render(colors, 0.6)
+	renderCh <- colors
 }
 
 func test() {
