@@ -37,31 +37,36 @@ func Initialize() {
 	}
 }
 
-func Render(pixels []colorful.Color, brightness float64) {
-	data := make([]byte, len(pixels)*3 + 3)
+func Render(pixels []*colorful.Color, brightness float64) {
+	//fmt.Printf("color count: %d\n", len(pixels))
+	data := make([]byte, len(pixels)*3+3)
 	data[0] = '*'
 	data[1] = 238
 	data[2] = 2
 
 	for i, c := range pixels {
+		if c == nil {
+			c = &colorful.Color{} //is this black?
+		} else {
+			//fmt.Printf("%+v", *c)
+		}
 		c.R = c.R * brightness
 		c.G = c.G * brightness
 		c.B = c.B * brightness
 		r, g, b := c.RGB255()
-		data[3*i + 3] = byte(r)     //Red
-		data[3*i + 3 + 1] = byte(g) //Green
-		data[3*i + 3 + 2] = byte(b) //Blue
+		data[3*i+3] = byte(r)   //Red
+		data[3*i+3+1] = byte(g) //Green
+		data[3*i+3+2] = byte(b) //Blue
 	}
 
 	addr := libusb.EndpointAddress(byte(3))
-		//start := time.Now()
+	//start := time.Now()
 
-		_, err := deviceHandle.BulkTransfer(addr, data, len(data), 20)
-		if err != nil {
-			log.Fatalf("Error bulk transferring: %v", err)
-		}
-		//since := time.Since(start)
-		//log.Printf("Usb transfer took: %v", since)
+	_, err := deviceHandle.BulkTransfer(addr, data, len(data), 20)
+	if err != nil {
+		log.Fatalf("Error bulk transferring: %v", err)
+	}
+	//log.Printf("Usb transfer took: %v\n", time.Since(start))
 
 }
 
@@ -172,4 +177,3 @@ func showInfo(ctx *libusb.Context, name string, vendorID, productID uint16) {
 		log.Println()
 	}
 }
-
