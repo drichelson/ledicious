@@ -1072,14 +1072,15 @@ func init() {
 
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
-	Init()
+	usb.Initialize()
+	test()
 }
 
 //Teensy:
 // descriptor: &{Length:18 DescriptorType:Device descriptor. USBSpecification:0x0200 (2.00) DeviceClass:Communications class. DeviceSubClass:0 DeviceProtocol:0 MaxPacketSize0:64 VendorID:5824 ProductID:1155 DeviceReleaseNumber:0x0100 (1.00) ManufacturerIndex:1 ProductIndex:2 SerialNumberIndex:3 NumConfigurations:1}
 
 func reset() {
-	for i, _ := range pixels {
+	for i := range pixels {
 		pixels[i].color = &colorful.Color{}
 	}
 }
@@ -1092,40 +1093,30 @@ func render() {
 	go usb.Render(colors, 0.6)
 }
 
-func Init() {
-	usb.Initialize()
-
-	for i, row := range rows {
-		fmt.Printf("row: %d\n", i)
-		reset()
-		for _, pixel := range row {
-			pixel.color.R = 1.0
+func test() {
+	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
+		for i, row := range rows {
+			fmt.Printf("row: %d\n", i)
+			reset()
+			for _, pixel := range row {
+				pixel.color = &c
+			}
+			render()
+			time.Sleep(50 * time.Millisecond)
 		}
-		render()
-		time.Sleep(100 * time.Millisecond)
 	}
+	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
+		for i, col := range cols {
+			fmt.Printf("column: %d\n", i)
+			reset()
+			for _, pixel := range col {
+				pixel.color = &c
+			}
+			render()
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+	reset()
 	render()
-
-	for i, col := range cols {
-		fmt.Printf("column: %d\n", i)
-		reset()
-		for _, pixel := range col {
-			pixel.color.R = 1.0
-		}
-		render()
-		time.Sleep(100 * time.Millisecond)
-	}
-
-	//start := time.Now()
-	//pixels := make([]*colorful.Color, 1200)
-	//for i := 0; i < 100000; i++ {
-	//	start := time.Now()
-	//	for i := range pixels {
-	//		pixels[i] = &colorful.Color{R: rand.Float64(), G: rand.Float64(), B: rand.Float64()}
-	//	}
-	//	go usb.Render(pixels, 0.6)
-	//	log.Printf("Render took: %v", time.Since(start))
-	//	time.Sleep(15 * time.Millisecond)
-	//}
-	//log.Printf("avg time per frame: %v", time.Since(start)/100)
+	time.Sleep(50 * time.Millisecond)
 }
