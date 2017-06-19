@@ -90,13 +90,19 @@ func main() {
 
 	//test()
 	var a Animation
+	colors, err := colorful.WarmPalette(3)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
 	a = &OpenSimplexAnimation{
-		noise: opensimplex.NewWithSeed(time.Now().UnixNano()),
-		histo: metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*10000, 1.0)),
+		noise:  opensimplex.NewWithSeed(time.Now().UnixNano()),
+		colors: colors,
+		histo:  metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*10000, 1.0)),
 	}
 	startTime := time.Now()
 	checkPointTime := startTime
 	frameCount := 0
+
 	for {
 		timeSinceStartSeconds := time.Since(startTime).Seconds()
 		a.frame(timeSinceStartSeconds, frameCount)
@@ -118,10 +124,11 @@ func main() {
 }
 
 type OpenSimplexAnimation struct {
-	noise *opensimplex.Noise
-	histo metrics.Histogram
-	min   float64
-	max   float64
+	noise  *opensimplex.Noise
+	colors []colorful.Color
+	histo  metrics.Histogram
+	min    float64
+	max    float64
 }
 
 func (a *OpenSimplexAnimation) frame(time float64, frameCount int) {
@@ -133,7 +140,6 @@ func (a *OpenSimplexAnimation) frame(time float64, frameCount int) {
 
 			noiseValNormalized := a.normalizeNoiseValue(noiseVal)
 			a.histo.Update(int64(noiseValNormalized * 1000.0))
-			//math.Max(math.Min((noiseVal+1.0)/2.0, 1.0), 0.0)
 			h := 20.0 * noiseValNormalized
 			c := colorful.Hsv(h, 1.0, noiseValNormalized)
 			p.color = &c
