@@ -7,6 +7,7 @@ import (
 	"github.com/ojrac/opensimplex-go"
 	"github.com/yvasiyarov/go-metrics"
 	"log"
+	"math"
 	"time"
 )
 
@@ -24,7 +25,7 @@ var (
 )
 
 type Animation interface {
-	frame(time float64)
+	frame(time float64, frameCount int)
 }
 
 type BallPixel struct {
@@ -37,6 +38,184 @@ type BallPixel struct {
 	lon      float64
 	color    *colorful.Color
 	disabled bool
+}
+
+func init() {
+	loadMapping()
+	//populate colors:
+	for i, p := range pixels {
+		if p == nil {
+			pixels[i] = &BallPixel{disabled: true}
+		}
+		pixels[i].color = &colorful.Color{}
+	}
+
+	//for pixelCount := len(colors); pixelCount < expectedPixelCount; pixelCount++ {
+	//	colors = append(colors, &colorful.Color{})
+	//}
+
+	//populate rows and columns
+	for _, p := range pixels {
+		if !p.disabled {
+			if rows[p.row] == nil {
+				rows[p.row] = make([]*BallPixel, 0)
+			}
+			rows[p.row] = append(rows[p.row], p)
+
+			if cols[p.col] == nil {
+				cols[p.col] = make([]*BallPixel, 0)
+			}
+			cols[p.col] = append(cols[p.col], p)
+		}
+	}
+
+	fmt.Printf("pixel count: %d\n", len(pixels))
+	fmt.Printf("row count: %d\n", len(rows))
+	fmt.Printf("col count: %d\n", len(cols))
+}
+
+//func (p *BallPixel) setColor(color *colorful.Color) {
+//	p.color = color
+//}
+
+func main() {
+	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
+	usb.Initialize()
+
+	go func() {
+		for {
+			usb.Render(<-renderCh, 0.3)
+		}
+	}()
+
+	//test()
+	var a Animation
+	a = &OpenSimplexAnimation{
+		noise: opensimplex.NewWithSeed(time.Now().UnixNano()),
+		histo: metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*10000, 1.0)),
+	}
+	startTime := time.Now()
+	checkPointTime := startTime
+	frameCount := 0
+	for {
+		timeSinceStartSeconds := time.Since(startTime).Seconds()
+		a.frame(timeSinceStartSeconds, frameCount)
+		//w := float64(time.Since(startTime).Nanoseconds())
+		//fmt.Printf("%f\n", w)
+		//w += 0.005
+
+		render()
+		reset()
+		//time.Sleep(100 * time.Millisecond)
+		frameCount++
+		if frameCount%1000 == 0 {
+			newCheckPointTime := time.Now()
+			fmt.Printf("Avg FPS for past 1000 frames: %v\n", 1000.0/time.Since(checkPointTime).Seconds())
+			checkPointTime = newCheckPointTime
+		}
+		//fmt.Printf("histo: min: %v median: %v, max: %v\n", histo.Min(), histo.Percentile(0.5), histo.Max())
+	}
+}
+
+type OpenSimplexAnimation struct {
+	noise *opensimplex.Noise
+	histo metrics.Histogram
+	min   float64
+	max   float64
+}
+
+func (a *OpenSimplexAnimation) frame(time float64, frameCount int) {
+	for _, p := range pixels {
+		if !p.disabled {
+			noiseVal := a.noise.Eval4(p.x, p.y, p.z, time/2.0)
+			a.min = math.Min(a.min, noiseVal)
+			a.max = math.Max(a.max, noiseVal)
+
+			noiseValNormalized := a.normalizeNoiseValue(noiseVal)
+			a.histo.Update(int64(noiseValNormalized * 1000.0))
+			//math.Max(math.Min((noiseVal+1.0)/2.0, 1.0), 0.0)
+			h := 20.0 * noiseValNormalized
+			c := colorful.Hsv(h, 1.0, noiseValNormalized)
+			p.color = &c
+			//fmt.Printf("%v\n", noiseVal)
+
+		}
+
+	}
+	if frameCount%1000 == 0 {
+		go func() {
+			snapshot := a.histo.Snapshot()
+			fmt.Printf("Normalized histo: min: %.3f P10: %.3f P20: %.3f P30: %.3f P40: %.3f P50: %.3f P60: %.3f P70: %.3f P80: %.3f P90: %.3f max: %.3f\n",
+				float64(snapshot.Min())/1000.0,
+				snapshot.Percentile(0.1)/1000.0,
+				snapshot.Percentile(0.2)/1000.0,
+				snapshot.Percentile(0.3)/1000.0,
+				snapshot.Percentile(0.4)/1000.0,
+				snapshot.Percentile(0.5)/1000.0,
+				snapshot.Percentile(0.6)/1000.0,
+				snapshot.Percentile(0.7)/1000.0,
+				snapshot.Percentile(0.8)/1000.0,
+				snapshot.Percentile(0.9)/1000.0,
+				float64(snapshot.Max())/1000.0)
+		}()
+	}
+}
+
+// takes an arbitrary float and normalizes it to a range between 0-1.0
+// based on the animation's min and max. This should give us a smooth adjustment based on the past
+// ~100 frames' worth of noise values.
+func (a *OpenSimplexAnimation) normalizeNoiseValue(noiseVal float64) float64 {
+	noiseVal = noiseVal * 10.0 //adjust for the fact that the noise is clustered around the middle
+	noiseVal = math.Max(a.min, noiseVal)
+	noiseVal = math.Min(a.max, noiseVal)
+	histoDiff := a.max - a.min
+	noiseValDistFromMin := noiseVal - a.min
+	return noiseValDistFromMin / histoDiff
+}
+
+//Teensy:
+// descriptor: &{Length:18 DescriptorType:Device descriptor. USBSpecification:0x0200 (2.00) DeviceClass:Communications class. DeviceSubClass:0 DeviceProtocol:0 MaxPacketSize0:64 VendorID:5824 ProductID:1155 DeviceReleaseNumber:0x0100 (1.00) ManufacturerIndex:1 ProductIndex:2 SerialNumberIndex:3 NumConfigurations:1}
+
+func reset() {
+	for i := range pixels {
+		pixels[i].color = &colorful.Color{}
+	}
+}
+
+func render() {
+	colors := make([]colorful.Color, len(pixels))
+	for i, p := range pixels {
+		colors[i] = *p.color
+	}
+	renderCh <- colors
+}
+
+func test() {
+	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
+		for i, row := range rows {
+			fmt.Printf("row: %d\n", i)
+			reset()
+			for _, pixel := range row {
+				pixel.color = &c
+			}
+			render()
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
+		for i, col := range cols {
+			fmt.Printf("column: %d\n", i)
+			reset()
+			for _, pixel := range col {
+				pixel.color = &c
+			}
+			render()
+			time.Sleep(50 * time.Millisecond)
+		}
+	}
+	reset()
+	render()
+	time.Sleep(50 * time.Millisecond)
 }
 
 func loadMapping() {
@@ -1037,158 +1216,4 @@ func loadMapping() {
 	pixels[1126] = &BallPixel{col: 11, row: 7, x: -1.7733446721103991, y: -3.2997538248697915, z: 3.3208844464388685, lat: -41.25, lon: 61.875}
 	pixels[1127] = &BallPixel{col: 11, row: 6, x: -1.5550485149142348, y: -3.762969970703125, z: 2.9120883874711585, lat: -48.75, lon: 61.875}
 	pixels[1128] = &BallPixel{col: 11, row: 5, x: -1.3096762707573375, y: -4.160919189453125, z: 2.4525878278655004, lat: -56.25, lon: 61.875}
-}
-
-func init() {
-	loadMapping()
-	//populate colors:
-	for i, p := range pixels {
-		if p == nil {
-			pixels[i] = &BallPixel{disabled: true}
-		}
-		pixels[i].color = &colorful.Color{}
-	}
-
-	//for pixelCount := len(colors); pixelCount < expectedPixelCount; pixelCount++ {
-	//	colors = append(colors, &colorful.Color{})
-	//}
-
-	//populate rows and columns
-	for _, p := range pixels {
-		if !p.disabled {
-			if rows[p.row] == nil {
-				rows[p.row] = make([]*BallPixel, 0)
-			}
-			rows[p.row] = append(rows[p.row], p)
-
-			if cols[p.col] == nil {
-				cols[p.col] = make([]*BallPixel, 0)
-			}
-			cols[p.col] = append(cols[p.col], p)
-		}
-	}
-
-	fmt.Printf("pixel count: %d\n", len(pixels))
-	fmt.Printf("row count: %d\n", len(rows))
-	fmt.Printf("col count: %d\n", len(cols))
-}
-
-//func (p *BallPixel) setColor(color *colorful.Color) {
-//	p.color = color
-//}
-
-func main() {
-	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
-	usb.Initialize()
-
-	go func() {
-		for {
-			usb.Render(<- renderCh, 0.6)
-		}
-	}()
-
-	//test()
-	var a Animation
-	a = &OpenSimplexAnimation{
-		noise: opensimplex.NewWithSeed(time.Now().UnixNano()),
-		histo: metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*1000, 1.0)),
-	}
-	startTime := time.Now()
-	checkPointTime := startTime
-	frameCount := 0
-	for {
-		timeSinceStartSeconds := time.Since(startTime).Seconds()
-		a.frame(timeSinceStartSeconds)
-		//w := float64(time.Since(startTime).Nanoseconds())
-		//fmt.Printf("%f\n", w)
-		//w += 0.005
-
-		render()
-		reset()
-		//time.Sleep(100 * time.Millisecond)
-		frameCount++
-		if frameCount%1000 == 0 {
-			newCheckPointTime := time.Now()
-			fmt.Printf("Avg FPS for past 1000 frames: %v\n", 1000.0/time.Since(checkPointTime).Seconds())
-			checkPointTime = newCheckPointTime
-		}
-		//fmt.Printf("histo: min: %v median: %v, max: %v\n", histo.Min(), histo.Percentile(0.5), histo.Max())
-	}
-}
-
-type OpenSimplexAnimation struct {
-	noise *opensimplex.Noise
-	histo metrics.Histogram
-	//w     float64
-}
-
-func (a *OpenSimplexAnimation) frame(time float64) {
-	for _, p := range pixels {
-		if !p.disabled {
-			noiseVal := a.noise.Eval4(p.x, p.y, p.z, time/5.0)
-			a.histo.Update(int64(noiseVal * 1000.0))
-
-			noiseValNormalized := a.normalizeNoiseValue(noiseVal)
-			//math.Max(math.Min((noiseVal+1.0)/2.0, 1.0), 0.0)
-			h := 360 * noiseValNormalized
-			c := colorful.Hsv(h, 1.0, noiseValNormalized)
-			p.color = &c
-			//fmt.Printf("%v\n", noiseVal)
-		}
-	}
-}
-
-// takes an arbitrary float and normalizes it to a range between 0-1.0
-// based on the histogram's min and max. This should give us a smooth adjustment based on the past
-// 1000 frames' worth of noise values.
-func (a *OpenSimplexAnimation) normalizeNoiseValue(noiseVal float64) float64 {
-	//histoMin := float64(a.histo.Min()) / 1000.0
-	//histoMax := float64(a.histo.Max()) / 1000.0
-
-	return noiseVal
-}
-
-//Teensy:
-// descriptor: &{Length:18 DescriptorType:Device descriptor. USBSpecification:0x0200 (2.00) DeviceClass:Communications class. DeviceSubClass:0 DeviceProtocol:0 MaxPacketSize0:64 VendorID:5824 ProductID:1155 DeviceReleaseNumber:0x0100 (1.00) ManufacturerIndex:1 ProductIndex:2 SerialNumberIndex:3 NumConfigurations:1}
-
-func reset() {
-	for i := range pixels {
-		pixels[i].color = &colorful.Color{}
-	}
-}
-
-func render() {
-	colors := make([]colorful.Color, len(pixels))
-	for i, p := range pixels {
-		colors[i] = *p.color
-	}
-	renderCh <- colors
-}
-
-func test() {
-	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
-		for i, row := range rows {
-			fmt.Printf("row: %d\n", i)
-			reset()
-			for _, pixel := range row {
-				pixel.color = &c
-			}
-			render()
-			time.Sleep(50 * time.Millisecond)
-		}
-	}
-	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
-		for i, col := range cols {
-			fmt.Printf("column: %d\n", i)
-			reset()
-			for _, pixel := range col {
-				pixel.color = &c
-			}
-			render()
-			time.Sleep(50 * time.Millisecond)
-		}
-	}
-	reset()
-	render()
-	time.Sleep(50 * time.Millisecond)
 }
