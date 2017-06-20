@@ -17,6 +17,7 @@ type OpenSimplexAnimation struct {
 	max      float64
 }
 
+//http://www.rapidtables.com/web/color/color-picker.htm
 func NewOpenSimplexAnimation() *OpenSimplexAnimation {
 	gradientTable := GradientTable{
 		{colorful.Hsv(0.0, 1.0, 0.3), 0.0}, // red

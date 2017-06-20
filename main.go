@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/drichelson/usb-test/usb"
+	_ "github.com/drichelson/usb-test/usb"
+	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
 	"log"
+	"math/rand"
 	"time"
 )
 
@@ -16,7 +19,8 @@ const (
 )
 
 var (
-	pixels   []*BallPixel
+	pixels   BallPixels
+	cells    = make(map[s2.Cell]*BallPixel)
 	rows     = make([][]*BallPixel, RowCount)
 	cols     = make([][]*BallPixel, ColumnCount)
 	renderCh = make(chan []colorful.Color, 1)
@@ -25,6 +29,15 @@ var (
 type Animation interface {
 	frame(time float64, frameCount int)
 }
+type BallPixels []*BallPixel
+
+func (bp BallPixels) getRandomPixel() *BallPixel {
+	p := bp[rand.Int31n(expectedPixelCount)]
+	if p.disabled {
+		return bp.getRandomPixel()
+	}
+	return p
+}
 
 type BallPixel struct {
 	col      int
@@ -32,8 +45,8 @@ type BallPixel struct {
 	x        float64
 	y        float64
 	z        float64
-	lat      float64
-	lon      float64
+	LatLong  *s2.LatLng
+	cell     *s2.Cell
 	color    *colorful.Color
 	disabled bool
 }
@@ -51,7 +64,8 @@ func main() {
 	//test()
 	var a Animation
 
-	a = NewOpenSimplexAnimation()
+	//a = NewOpenSimplexAnimation()
+	a = NewGeoAnimation()
 	startTime := time.Now()
 	checkPointTime := startTime
 	frameCount := 0
@@ -59,20 +73,14 @@ func main() {
 	for {
 		timeSinceStartSeconds := time.Since(startTime).Seconds()
 		a.frame(timeSinceStartSeconds, frameCount)
-		//w := float64(time.Since(startTime).Nanoseconds())
-		//fmt.Printf("%f\n", w)
-		//w += 0.005
-
 		render()
 		reset()
-		//time.Sleep(100 * time.Millisecond)
 		frameCount++
 		if frameCount%1000 == 0 {
 			newCheckPointTime := time.Now()
 			fmt.Printf("Avg FPS for past 1000 frames: %v\n", 1000.0/time.Since(checkPointTime).Seconds())
 			checkPointTime = newCheckPointTime
 		}
-		//fmt.Printf("histo: min: %v median: %v, max: %v\n", histo.Min(), histo.Percentile(0.5), histo.Max())
 	}
 }
 
