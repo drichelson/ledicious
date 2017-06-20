@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/drichelson/usb-test/usb"
-	_ "github.com/drichelson/usb-test/usb"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
 	"log"
@@ -12,7 +11,7 @@ import (
 )
 
 const (
-	GlobalBrightness   = 0.3
+	GlobalBrightness   = 0.2
 	ColumnCount        = 64
 	RowCount           = 20
 	expectedPixelCount = 1200
@@ -27,7 +26,7 @@ var (
 )
 
 type Animation interface {
-	frame(time float64, frameCount int)
+	frame(elapsed time.Duration, frameCount int)
 }
 type BallPixels []*BallPixel
 
@@ -71,8 +70,7 @@ func main() {
 	frameCount := 0
 
 	for {
-		timeSinceStartSeconds := time.Since(startTime).Seconds()
-		a.frame(timeSinceStartSeconds, frameCount)
+		a.frame(time.Since(startTime), frameCount)
 		render()
 		reset()
 		frameCount++

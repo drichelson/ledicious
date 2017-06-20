@@ -5,48 +5,97 @@ import (
 	"github.com/golang/geo/s1"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
+	"math/rand"
 	"time"
 )
 
 const (
 	maxSurfaceArea = 12.566370614359172 // 4 * pi
+	areaPerPixel   = 0.012566371        //very approximate
+	bubbleCount    = 15
 )
 
 var (
-	s2Cap s2.Cap
+	caps    = make([]bubble, 0)
+	bubbleI = 0
 )
 
 type GeoAnimation struct {
 	pixels []*BallPixel
 }
 
+type bubble struct {
+	cap      s2.Cap
+	color    colorful.Color
+	lifeSpan time.Duration
+	birth    time.Time
+}
+
+func newBubble() bubble {
+	return bubble{
+		cap:      s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), areaPerPixel),
+		color:    colorful.HappyColor(),
+		lifeSpan: time.Duration(5+rand.Intn(10)) * time.Second,
+		birth:    time.Now(),
+	}
+}
+
 //http://www.rapidtables.com/web/color/color-picker.htm
 func NewGeoAnimation() Animation {
+	bubbleI = 0
 	a := GeoAnimation{
 		pixels: []*BallPixel{pixels.getRandomPixel()},
 	}
-	fmt.Println(s2.FullCap().Area())
-	//s2Cap = s2.CapFromPoint(s2.PointFromLatLng(*a.pixels[0].LatLong))
-	//s2Cap = s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), 0.1)
+	for i := 0; i <= bubbleCount; i++ {
+		caps = append(caps, newBubble())
+	}
 	return &a
 }
 
-func (a *GeoAnimation) frame(elapsedTime float64, frameCount int) {
-	if s2Cap.Area() >= maxSurfaceArea || s2Cap.Area() <= 0.0 {
-		s2Cap = s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), 0.1)
-	}
-	area := s2Cap.Area()
-	for _, p := range pixels {
-		if !p.disabled {
-			if s2Cap.ContainsPoint(s2.PointFromLatLng(*p.LatLong)) {
-				color := colorful.Hsv(180.0*area/maxSurfaceArea, 1.0, 0.6)
-				p.color = &color
+func (a *GeoAnimation) frame(elapsedTime time.Duration, frameCount int) {
+	//for i, b := range caps {
+	b := caps[bubbleI]
+
+	//if s2Cap.Area() >= maxSurfaceArea*float64(rand.Intn(9000))/1000.0 {
+	//	caps[i] = s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), 0.1)
+	//}
+	shouldExpand := true
+	for otherI, otherB := range caps {
+		if otherI != bubbleI {
+			if caps[bubbleI].cap.Intersects(otherB.cap) {
+				//caps[i] = bubble{s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), areaPerPixel), colorful.HappyColor()}
+				//} else {
+				caps[bubbleI].cap = s2.CapFromCenterArea(b.cap.Center(), b.cap.Area()*0.8)
+				shouldExpand = false
+				//Expanded(s1.Angle(0.005))
 			}
 		}
 	}
-	time.Sleep(70 * time.Millisecond)
+	if shouldExpand {
+		caps[bubbleI].cap = b.cap.Expanded(s1.Angle(0.005))
+		//break
+	}
+	//}
+	for _, b := range caps {
+		for _, p := range pixels {
+			if !p.disabled {
+				if b.cap.ContainsPoint(s2.PointFromLatLng(*p.LatLong)) {
+					color := b.color
+					p.color = &color
+				}
+			}
+		}
+	}
+	if time.Since(b.birth) > b.lifeSpan {
+		caps[bubbleI] = newBubble()
+	}
+
+	bubbleI++
+	if bubbleI >= bubbleCount {
+		bubbleI = 0
+	}
+	//time.Sleep(50 * time.Millisecond)
 	//fmt.Printf("cap: %s\n", s2Cap.String())
-	s2Cap = s2Cap.Expanded(s1.Angle(0.1))
 }
 
 func (a *GeoAnimation) testCells() {
