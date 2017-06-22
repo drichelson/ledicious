@@ -5,8 +5,12 @@ import (
 	"github.com/drichelson/usb-test/usb"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
+	"gopkg.in/macaron.v1"
 	"log"
 	"math/rand"
+	"net/http"
+	"strconv"
+	"sync"
 	"time"
 )
 
@@ -23,6 +27,9 @@ var (
 	rows     = make([][]*BallPixel, RowCount)
 	cols     = make([][]*BallPixel, ColumnCount)
 	renderCh = make(chan []colorful.Color, 1)
+	webVar1  = 0
+	webVar2  = 0
+	webLock  = &sync.RWMutex{}
 )
 
 type Animation interface {
@@ -52,8 +59,39 @@ type BallPixel struct {
 
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
-	usb.Initialize()
 
+	m := macaron.Classic()
+	m.Use(macaron.Static("assets",
+		macaron.StaticOptions{
+			// Prefix is the optional prefix used to serve the static directory content. Default is empty string.
+			Prefix: "",
+			// SkipLogging will disable [Static] log messages when a static file is served. Default is false.
+			SkipLogging: true,
+			// IndexFile defines which file to serve as index if it exists. Default is "index.html".
+			IndexFile: "index.html",
+		}))
+
+	m.Get("/var", func(ctx *macaron.Context) string {
+		webLock.RLock()
+		defer webLock.RUnlock()
+		return strconv.Itoa(webVar1)
+	})
+	m.Put("/var", func(ctx *macaron.Context) string {
+		webLock.Lock()
+		defer webLock.Unlock()
+		newValString := ctx.Query("newVal")
+		newVal, err := strconv.Atoi(newValString)
+		if err != nil {
+			ctx.Resp.WriteHeader(http.StatusBadRequest)
+			return "not a number!"
+		}
+		webVar1 = newVal
+		return newValString
+	})
+
+	//m.Run()
+
+	usb.Initialize()
 	go func() {
 		for {
 			usb.Render(<-renderCh, GlobalBrightness)
