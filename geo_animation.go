@@ -30,7 +30,7 @@ func NewGeoAnimation() Animation {
 	a := GeoAnimation{
 		pixels: []*BallPixel{pixels.getRandomPixel()},
 	}
-	for i := 0; i < 12; i++ {
+	for i := 0; i < 10; i++ {
 		bubbles = append(bubbles, newBubble())
 	}
 	//fmt.Println(s2.FullCap().Area())
@@ -40,11 +40,22 @@ func NewGeoAnimation() Animation {
 }
 
 func newBubble() bubble {
-	return bubble{
-		cap:   s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), 0.05),
+	newB := bubble{
+		cap:   newCap(),
 		color: colorful.HappyColor(),
 		//color: colorful.Color{R: float64(rand.Intn(100)) / 100.0, G: float64(rand.Intn(100)), B: float64(rand.Intn(100))},
 	}
+	for _, b := range bubbles {
+		distance := newB.cap.Center().Distance(b.cap.Center()).Degrees()
+		if distance <= 6.0*b.cap.Radius().Degrees() {
+			newB.cap = newCap()
+		}
+	}
+	return newB
+}
+
+func newCap() s2.Cap {
+	return s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), 0.05)
 }
 
 func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
@@ -62,17 +73,23 @@ func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
 				}
 			}
 		}
+		capRadius := bubbles[i].cap.Radius().Degrees()
+		//fmt.Printf("capRadius: %v\n", capRadius)
 		for _, p := range pixels {
 			if !p.disabled {
 				if bubbles[i].cap.ContainsPoint(s2.PointFromLatLng(*p.LatLong)) {
-					color := bubbles[i].color
-					p.color = &color
+					distanceFromCenter := s2.PointFromLatLng(*p.LatLong).Distance(bubbles[i].cap.Center())
+					//fmt.Printf("distanceFromCenter: %v\n", distanceFromCenter)
+
+					h, s, _ := bubbles[i].color.Hsv()
+					c := colorful.Hsv(h, s, 1.0-(distanceFromCenter.Degrees()/capRadius))
+					p.color = &c
 				}
 			}
 		}
 
 	}
-	time.Sleep(20 * time.Millisecond)
+	time.Sleep(60 * time.Millisecond)
 }
 
 func (a *GeoAnimation) testCells() {
