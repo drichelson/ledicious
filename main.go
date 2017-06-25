@@ -22,10 +22,9 @@ const (
 )
 
 var (
-	pixels   BallPixels
-	cells    = make(map[s2.Cell]*GlobePixel)
-	rows     = make([][]*GlobePixel, RowCount)
-	cols     = make([][]*GlobePixel, ColumnCount)
+	pixels   Pixels
+	rows     = make([][]*Pixel, RowCount)
+	cols     = make([][]*Pixel, ColumnCount)
 	renderCh = make(chan []colorful.Color, 1)
 	webVar1  = 0
 	webVar2  = 0
@@ -35,17 +34,16 @@ var (
 type Animation interface {
 	frame(elapsed time.Duration, frameCount int)
 }
-type BallPixels []*GlobePixel
-
-func (bp BallPixels) getRandomPixel() *GlobePixel {
-	p := bp[rand.Int31n(expectedPixelCount)]
-	if p.disabled {
-		return bp.getRandomPixel()
-	}
-	return p
+type Pixels struct {
+	all    []*Pixel
+	active []*Pixel
 }
 
-type GlobePixel struct {
+func (p Pixels) getRandomPixel() *Pixel {
+	return p.active[rand.Int31n(int32(len(pixels.active)))]
+}
+
+type Pixel struct {
 	col      int
 	row      int
 	x        float64
@@ -126,8 +124,8 @@ func main() {
 
 	for {
 		a.frame(time.Since(startTime), frameCount)
-		render()
-		reset()
+		pixels.render()
+		pixels.reset()
 		frameCount++
 		if frameCount%1000 == 0 {
 			newCheckPointTime := time.Now()
@@ -140,15 +138,15 @@ func main() {
 //Teensy:
 // descriptor: &{Length:18 DescriptorType:Device descriptor. USBSpecification:0x0200 (2.00) DeviceClass:Communications class. DeviceSubClass:0 DeviceProtocol:0 MaxPacketSize0:64 VendorID:5824 ProductID:1155 DeviceReleaseNumber:0x0100 (1.00) ManufacturerIndex:1 ProductIndex:2 SerialNumberIndex:3 NumConfigurations:1}
 
-func reset() {
-	for i := range pixels {
-		pixels[i].color = &colorful.Color{}
+func (p *Pixels) reset() {
+	for i := range pixels.active {
+		pixels.active[i].color = &colorful.Color{}
 	}
 }
 
-func render() {
-	colors := make([]colorful.Color, len(pixels))
-	for i, p := range pixels {
+func (p *Pixels) render() {
+	colors := make([]colorful.Color, len(pixels.all))
+	for i, p := range pixels.all {
 		colors[i] = *p.color
 	}
 	renderCh <- colors
@@ -158,26 +156,26 @@ func test() {
 	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
 		for i, row := range rows {
 			fmt.Printf("row: %d\n", i)
-			reset()
+			pixels.reset()
 			for _, pixel := range row {
 				pixel.color = &c
 			}
-			render()
+			pixels.render()
 			time.Sleep(50 * time.Millisecond)
 		}
 	}
 	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
 		for i, col := range cols {
 			fmt.Printf("column: %d\n", i)
-			reset()
+			pixels.reset()
 			for _, pixel := range col {
 				pixel.color = &c
 			}
-			render()
+			pixels.render()
 			time.Sleep(50 * time.Millisecond)
 		}
 	}
-	reset()
-	render()
+	pixels.reset()
+	pixels.render()
 	time.Sleep(50 * time.Millisecond)
 }

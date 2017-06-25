@@ -34,20 +34,16 @@ func NewOpenSimplexAnimation() *OpenSimplexAnimation {
 }
 
 func (a *OpenSimplexAnimation) frame(time float64, frameCount int) {
-	for _, p := range pixels {
-		if !p.disabled {
-			noiseVal := a.noise.Eval4(p.x, p.y, p.z, time/10.0)
-			a.min = math.Min(a.min, noiseVal)
-			a.max = math.Max(a.max, noiseVal)
+	for _, p := range pixels.active {
+		noiseVal := a.noise.Eval4(p.x, p.y, p.z, time/10.0)
+		a.min = math.Min(a.min, noiseVal)
+		a.max = math.Max(a.max, noiseVal)
 
-			noiseValNormalized := a.normalizeNoiseValue(noiseVal)
-			a.histo.Update(int64(noiseValNormalized * 1000.0))
-			c := a.gradient.GetInterpolatedColorFor(noiseValNormalized)
-			p.color = &c
-			//fmt.Printf("%v\n", noiseVal)
-
-		}
-
+		noiseValNormalized := a.normalizeNoiseValue(noiseVal)
+		a.histo.Update(int64(noiseValNormalized * 1000.0))
+		c := a.gradient.GetInterpolatedColorFor(noiseValNormalized)
+		p.color = &c
+		//fmt.Printf("%v\n", noiseVal)
 	}
 	if frameCount%1000 == 0 {
 		go func() {

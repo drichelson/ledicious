@@ -16,7 +16,7 @@ var (
 )
 
 type GeoAnimation struct {
-	pixels []*GlobePixel
+	pixels []*Pixel
 }
 
 type bubble struct {
@@ -27,7 +27,7 @@ type bubble struct {
 //http://www.rapidtables.com/web/color/color-picker.htm
 func NewGeoAnimation() Animation {
 	a := GeoAnimation{
-		pixels: []*GlobePixel{pixels.getRandomPixel()},
+		pixels: []*Pixel{pixels.getRandomPixel()},
 	}
 	for i := 0; i < 7; i++ {
 		bubbles = append(bubbles, newBubble(0))
@@ -92,16 +92,14 @@ func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
 	for i, _ := range bubbles {
 		capRadius := bubbles[i].cap.Radius().Degrees()
 		//fmt.Printf("capRadius: %v\n", capRadius)
-		for _, p := range pixels {
-			if !p.disabled {
-				if bubbles[i].cap.ContainsPoint(p.Point) {
-					distanceFromCenter := p.Point.Distance(bubbles[i].cap.Center())
-					//fmt.Printf("distanceFromCenter: %v\n", distanceFromCenter)
+		for _, p := range pixels.active {
+			if bubbles[i].cap.ContainsPoint(p.Point) {
+				distanceFromCenter := p.Point.Distance(bubbles[i].cap.Center())
+				//fmt.Printf("distanceFromCenter: %v\n", distanceFromCenter)
 
-					h, s, _ := bubbles[i].color.Hsv()
-					c := colorful.Hsv(h, s, 1.0-(distanceFromCenter.Degrees()/capRadius))
-					p.color = &c
-				}
+				h, s, _ := bubbles[i].color.Hsv()
+				c := colorful.Hsv(h, s, 1.0-(distanceFromCenter.Degrees()/capRadius))
+				p.color = &c
 			}
 		}
 	}
