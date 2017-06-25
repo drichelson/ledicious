@@ -31,7 +31,7 @@ func NewGeoAnimation() Animation {
 		pixels: []*BallPixel{pixels.getRandomPixel()},
 	}
 	for i := 0; i < 7; i++ {
-		bubbles = append(bubbles, newBubble())
+		bubbles = append(bubbles, newBubble(0))
 	}
 	//fmt.Println(s2.FullCap().Area())
 	//s2Cap = s2.CapFromPoint(s2.PointFromLatLng(*a.pixels[0].LatLong))
@@ -39,17 +39,19 @@ func NewGeoAnimation() Animation {
 	return &a
 }
 
-func newBubble() bubble {
+func newBubble(depth int) bubble {
 	newB := bubble{
 		cap:   newCap(),
 		color: colorful.HappyColor(),
 		//color: colorful.Color{R: float64(rand.Intn(100)) / 100.0, G: float64(rand.Intn(100)), B: float64(rand.Intn(100))},
 	}
-	for _, b := range bubbles {
-		distance := newB.cap.Center().Distance(b.cap.Center()).Degrees()
-		if distance <= 10.0*b.cap.Radius().Degrees() {
-			//fmt.Printf("too close: %v\n", distance)
-			newB.cap = newCap()
+	if depth < 100 {
+		for _, b := range bubbles {
+			distance := newB.cap.Center().Distance(b.cap.Center()).Degrees()
+			if distance <= 3.0*b.cap.Radius().Degrees() {
+				//fmt.Printf("too close: %v\n", distance)
+				return newBubble(depth + 1)
+			}
 		}
 	}
 	return newB
@@ -60,23 +62,35 @@ func newCap() s2.Cap {
 }
 
 func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
+	//replaced := make(map[int]bool)
 	for i, b := range bubbles {
+		//if skip, _ := replaced[i]; skip {
+		//	break
+		//}
 		//fmt.Printf("[%d]Processing bubble %d\n", frameCount, i)
 		bubbles[i].cap = bubbles[i].cap.Expanded(s1.Angle(0.005))
 
-		if b.cap.Area() >= maxSurfaceArea || b.cap.Area() <= 0.0 {
-			bubbles[i] = newBubble()
+		if b.cap.Area() >= maxSurfaceArea/4.0 || b.cap.Area() <= 0.0 {
+			bubbles[i] = newBubble(0)
 		}
 
 		for otherI, otherB := range bubbles {
 			if otherI != i {
 				if b.cap.Intersects(otherB.cap) {
-					bubbles[i] = newBubble()
-					break
+					if b.cap.Area() > otherB.cap.Area() {
+						bubbles[otherI] = newBubble(0)
+						//replaced[otherI] = true
+					} else {
+						bubbles[i] = newBubble(0)
+						break
+					}
 					//fmt.Printf("\tpopping bubble %d because it hit bubble %d\n", i, otherI)
 				}
 			}
 		}
+
+	}
+	for i, _ := range bubbles {
 		capRadius := bubbles[i].cap.Radius().Degrees()
 		//fmt.Printf("capRadius: %v\n", capRadius)
 		for _, p := range pixels {
@@ -91,7 +105,6 @@ func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
 				}
 			}
 		}
-
 	}
 	time.Sleep(40 * time.Millisecond)
 }

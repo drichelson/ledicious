@@ -74,22 +74,40 @@ func main() {
 	m.Get("/var", func(ctx *macaron.Context) string {
 		webLock.RLock()
 		defer webLock.RUnlock()
-		return strconv.Itoa(webVar1)
-	})
-	m.Put("/var", func(ctx *macaron.Context) string {
-		webLock.Lock()
-		defer webLock.Unlock()
-		newValString := ctx.Query("newVal")
+		ctx.Header().Set("Content-Type", "application/json")
+		newValString := ctx.Query("state")
+		if newValString == "" {
+			return "{\"state\": \"" + strconv.Itoa(webVar1) + "\"}"
+		}
 		newVal, err := strconv.Atoi(newValString)
 		if err != nil {
 			ctx.Resp.WriteHeader(http.StatusBadRequest)
 			return "not a number!"
 		}
 		webVar1 = newVal
-		return newValString
+		fmt.Printf("new value: %d\n", newVal)
+		return "{\"state\": \"" + newValString + "\"}"
+
 	})
 
-	//m.Run()
+	m.Put("/var", func(ctx *macaron.Context) string {
+		webLock.Lock()
+		defer webLock.Unlock()
+		ctx.Header().Set("Content-Type", "application/json")
+
+		newValString := ctx.Query("state")
+		newVal, err := strconv.Atoi(newValString)
+		if err != nil {
+			ctx.Resp.WriteHeader(http.StatusBadRequest)
+			return "not a number!"
+		}
+		webVar1 = newVal
+		fmt.Printf("new value: %d", newVal)
+		return "{\"state\": \"" + newValString + "\"}"
+
+	})
+
+	m.Run()
 
 	usb.Initialize()
 	go func() {

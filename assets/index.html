@@ -1,0 +1,77 @@
+<!doctype html>
+<head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="jquery.mobile.min.css" />
+
+    <!--This was on 1.9.x, so maybe switch it back if needed-->
+    <script src="jquery-1.9.1.min.js"></script>
+    <script src="jquery.mobile.min.js"></script>
+</head>
+
+<style>
+    h3, h4 {
+        text-align: center;
+    }
+
+    span {
+        font-weight: bold;
+    }
+</style>
+
+<script type=text/javascript>
+    $("#page").page();
+    $("#slider-0").val(10);
+    $("#slider-0").slider("refresh");
+    console.log("wat");
+    $(
+        // When the switch is switched
+        // do an ajax request to server to change state
+        function() {
+            $('#slider-0').change(function() {
+                $.getJSON('/var', {
+                    state : $('#slider-0').val()
+                });
+            });
+        });
+
+    /*function()
+     {
+     $('#slider-0').change(function()
+     {
+     $.getJSON('/_pot0', {state: $('#slider-0').val()});
+     });
+     }
+     );*/
+    /*$(
+     // periodically (500ms) do an ajax request to get the button state
+     // modify the span tag to reflect the state (pressed or not)
+     // the state text comes from the JSON string returned by the server
+     function button()
+     {
+     $.getJSON('/_left', function(data)
+     {
+     $("#buttonState").text(data.buttonState);
+     setTimeout(function(){button();},500);
+     });
+     }
+     );*/
+</script>
+
+<div data-role="page" data-theme="b">
+    <div data-role="header">
+        <!--<div>-->
+            <!--<h3>KingJelly Remote Control</h3>-->
+        <!--</div>-->
+    </div>
+
+    <div data-role="content">
+        <form>
+            <label for="slider-0">Pot 0: Speed</label>
+            <input type="range"
+                   name="slider-0" id="slider-0" value="50" min="0" max="100"
+                   data-highlight="true" />
+        </form>
+    </div>
+    <div data-role="footer">
+    </div>
+</div>
