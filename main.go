@@ -23,9 +23,9 @@ const (
 
 var (
 	pixels   BallPixels
-	cells    = make(map[s2.Cell]*BallPixel)
-	rows     = make([][]*BallPixel, RowCount)
-	cols     = make([][]*BallPixel, ColumnCount)
+	cells    = make(map[s2.Cell]*GlobePixel)
+	rows     = make([][]*GlobePixel, RowCount)
+	cols     = make([][]*GlobePixel, ColumnCount)
 	renderCh = make(chan []colorful.Color, 1)
 	webVar1  = 0
 	webVar2  = 0
@@ -35,9 +35,9 @@ var (
 type Animation interface {
 	frame(elapsed time.Duration, frameCount int)
 }
-type BallPixels []*BallPixel
+type BallPixels []*GlobePixel
 
-func (bp BallPixels) getRandomPixel() *BallPixel {
+func (bp BallPixels) getRandomPixel() *GlobePixel {
 	p := bp[rand.Int31n(expectedPixelCount)]
 	if p.disabled {
 		return bp.getRandomPixel()
@@ -45,14 +45,13 @@ func (bp BallPixels) getRandomPixel() *BallPixel {
 	return p
 }
 
-type BallPixel struct {
+type GlobePixel struct {
 	col      int
 	row      int
 	x        float64
 	y        float64
 	z        float64
-	LatLong  *s2.LatLng
-	cell     *s2.Cell
+	Point    s2.Point
 	color    *colorful.Color
 	disabled bool
 }
@@ -107,7 +106,7 @@ func main() {
 
 	})
 
-	m.Run()
+	go m.Run()
 
 	usb.Initialize()
 	go func() {

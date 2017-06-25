@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/golang/geo/s1"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
@@ -17,7 +16,7 @@ var (
 )
 
 type GeoAnimation struct {
-	pixels []*BallPixel
+	pixels []*GlobePixel
 }
 
 type bubble struct {
@@ -28,7 +27,7 @@ type bubble struct {
 //http://www.rapidtables.com/web/color/color-picker.htm
 func NewGeoAnimation() Animation {
 	a := GeoAnimation{
-		pixels: []*BallPixel{pixels.getRandomPixel()},
+		pixels: []*GlobePixel{pixels.getRandomPixel()},
 	}
 	for i := 0; i < 7; i++ {
 		bubbles = append(bubbles, newBubble(0))
@@ -58,7 +57,7 @@ func newBubble(depth int) bubble {
 }
 
 func newCap() s2.Cap {
-	return s2.CapFromCenterArea(s2.PointFromLatLng(*(pixels.getRandomPixel()).LatLong), 0.05)
+	return s2.CapFromCenterArea(pixels.getRandomPixel().Point, 0.05)
 }
 
 func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
@@ -95,8 +94,8 @@ func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
 		//fmt.Printf("capRadius: %v\n", capRadius)
 		for _, p := range pixels {
 			if !p.disabled {
-				if bubbles[i].cap.ContainsPoint(s2.PointFromLatLng(*p.LatLong)) {
-					distanceFromCenter := s2.PointFromLatLng(*p.LatLong).Distance(bubbles[i].cap.Center())
+				if bubbles[i].cap.ContainsPoint(p.Point) {
+					distanceFromCenter := p.Point.Distance(bubbles[i].cap.Center())
 					//fmt.Printf("distanceFromCenter: %v\n", distanceFromCenter)
 
 					h, s, _ := bubbles[i].color.Hsv()
@@ -107,41 +106,4 @@ func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
 		}
 	}
 	time.Sleep(40 * time.Millisecond)
-}
-
-func (a *GeoAnimation) testCells() {
-	for _, p := range pixels {
-		reset()
-		if !p.disabled {
-			cell := *p.cell
-			//fmt.Printf("CellId: %s is leaf? %v avg area: %v\n", cell.ID().String(), cell.IsLeaf(), cell.AverageArea())
-			intersects := make([]*BallPixel, 0)
-			for _, otherpixel := range pixels {
-				if !otherpixel.disabled {
-					otherCell := *otherpixel.cell
-					if p != otherpixel && cell.IntersectsCell(otherCell) {
-						//fmt.Printf("%s intersects %s\n", cell.ID().String(), otherCell.ID().String())
-						intersects = append(intersects, otherpixel)
-					}
-				}
-			}
-			fmt.Printf("Row: %d Col: %d Cell %s intesects %d other cells: \n",
-				p.row, p.col, cell.ID().String(), len(intersects))
-			intersectsString := ""
-
-			p.color = &colorful.Color{R: 1.0, G: 1.0, B: 1.0}
-			for _, p := range intersects {
-				p.color = &colorful.Color{R: 1.0}
-				intersectsString += fmt.Sprintf("[row: %d col: %d]", p.row, p.col)
-			}
-			fmt.Printf("\t%s\n", intersectsString)
-
-			render()
-			time.Sleep(500 * time.Millisecond)
-			//fmt.Printf("Parent 2 cell id: %s\n", cell.ID().Parent(3).String())
-			//fmt.Printf("Parent 2 cell id: %s\n", cell.ID().Parent(2).String())
-			//fmt.Printf("Parent 1 cell id: %s\n", cell.ID().Parent(1).String())
-			//fmt.Printf("Parent 0 cell id: %s\n", cell.ID().Parent(0).String())
-		}
-	}
 }
