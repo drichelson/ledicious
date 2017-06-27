@@ -4,11 +4,13 @@ import (
 	"github.com/drichelson/libusb"
 	"github.com/lucasb-eyer/go-colorful"
 	"log"
+	"math"
 )
 
 const (
 	teensyVendorID  = 5824
 	teensyProductID = 1155
+	minimumVisible  = .007843137
 )
 
 var (
@@ -37,6 +39,15 @@ func Initialize() {
 	}
 }
 
+func normalizeBrightness(color colorful.Color) (r, g, b uint8) {
+	return normalize(color.R), normalize(color.G), normalize(color.B)
+}
+
+func normalize(in float64) uint8 {
+	//TODO: use a lookup table instead? check performance on arm before
+	return uint8(255.0 * math.Pow(in, 1.08))
+}
+
 func Render(pixels []colorful.Color, brightness float64) {
 	//fmt.Printf("color count: %d\n", len(pixels))
 	data := make([]byte, len(pixels)*3+3)
@@ -50,10 +61,11 @@ func Render(pixels []colorful.Color, brightness float64) {
 		//} else {
 		//	fmt.Printf("%+v", *c)
 		//}
-		c.R = c.R * brightness
-		c.G = c.G * brightness
-		c.B = c.B * brightness
-		r, g, b := c.RGB255()
+		//c.R = c.R * brightness
+		//c.G = c.G * brightness
+		//c.B = c.B * brightness
+		//c.RGB255()
+		r, g, b := normalizeBrightness(c)
 		data[3*i+3] = byte(r)   //Red
 		data[3*i+3+1] = byte(g) //Green
 		data[3*i+3+2] = byte(b) //Blue

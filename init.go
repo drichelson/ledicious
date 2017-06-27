@@ -23,12 +23,12 @@ func init() {
 			if rows[p.row] == nil {
 				rows[p.row] = make([]*Pixel, 0)
 			}
-			rows[p.row] = append(rows[p.row], p)
+			rows[p.row] = append(rows[p.row], pixels.all[i])
 
 			if cols[p.col] == nil {
 				cols[p.col] = make([]*Pixel, 0)
 			}
-			cols[p.col] = append(cols[p.col], p)
+			cols[p.col] = append(cols[p.col], pixels.all[i])
 			pixels.active = append(pixels.active, pixels.all[i])
 		}
 	}

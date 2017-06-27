@@ -33,9 +33,9 @@ func NewOpenSimplexAnimation() *OpenSimplexAnimation {
 	}
 }
 
-func (a *OpenSimplexAnimation) frame(time float64, frameCount int) {
+func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
 	for _, p := range pixels.active {
-		noiseVal := a.noise.Eval4(p.x, p.y, p.z, time/10.0)
+		noiseVal := a.noise.Eval4(p.x, p.y, p.z, elapsed.Seconds()/10.0)
 		a.min = math.Min(a.min, noiseVal)
 		a.max = math.Max(a.max, noiseVal)
 

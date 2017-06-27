@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	GlobalBrightness   = 0.2
+	GlobalBrightness   = 1.0
 	ColumnCount        = 64
 	RowCount           = 20
 	expectedPixelCount = 1200
@@ -116,8 +116,9 @@ func main() {
 	//test()
 	var a Animation
 
-	//a = NewOpenSimplexAnimation()
-	a = NewGeoAnimation()
+	a = NewOpenSimplexAnimation()
+	//a = NewGeoAnimation()
+	//a = &BrightnessTestAnimation{}
 	startTime := time.Now()
 	checkPointTime := startTime
 	frameCount := 0

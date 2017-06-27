@@ -1,7 +1,7 @@
 <!doctype html>
 <head>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="jquery.mobile.min.css" />
+    <link rel="stylesheet" href="jquery.mobile.min.css"/>
 
     <!--This was on 1.9.x, so maybe switch it back if needed-->
     <script src="jquery-1.9.1.min.js"></script>
@@ -26,10 +26,10 @@
     $(
         // When the switch is switched
         // do an ajax request to server to change state
-        function() {
-            $('#slider-0').change(function() {
+        function () {
+            $('#slider-0').change(function () {
                 $.getJSON('/var', {
-                    state : $('#slider-0').val()
+                    state: $('#slider-0').val()
                 });
             });
         });
@@ -60,16 +60,16 @@
 <div data-role="page" data-theme="b">
     <div data-role="header">
         <!--<div>-->
-            <!--<h3>KingJelly Remote Control</h3>-->
+        <!--<h3>KingJelly Remote Control</h3>-->
         <!--</div>-->
     </div>
 
     <div data-role="content">
         <form>
-            <label for="slider-0">Pot 0: Speed</label>
+            <label for="slider-0">0</label>
             <input type="range"
-                   name="slider-0" id="slider-0" value="50" min="0" max="100"
-                   data-highlight="true" />
+                   name="slider-0" id="slider-0" value="50" min="0" max="1000"
+                   data-highlight="true"/>
         </form>
     </div>
     <div data-role="footer">
