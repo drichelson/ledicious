@@ -1,4 +1,4 @@
-package main
+package animation
 
 import (
 	"fmt"
@@ -21,7 +21,8 @@ type BrightnessTestAnimation struct {
 
 func (a *BrightnessTestAnimation) frame(elapsed time.Duration, frameCount int) {
 	//v := (float64(frameCount%100) / 100.0) / 4.0
-	v := float64(webVar1) / 1000.0
+	//TODO: wire in control system instead of 500.0
+	v := float64(500.0) / 1000.0
 	for i, _ := range pixels.active {
 		//v := float64(p.col) / float64(len(cols))
 		c := colorful.Color{R: v}
