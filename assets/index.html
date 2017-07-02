@@ -20,19 +20,46 @@
 
 <script type=text/javascript>
 
-    function updateVar () {
-        $.getJSON(url='/varA', success=function (data,status,xhr) {
-            $("#slider-A").val(data.state).slider('refresh');
+    function updateVar(varName) {
+        $.getJSON(url = '/var' + varName, success = function (data, status, xhr) {
+            $("#slider-" + varName).val(data.state).slider('refresh');
         });
     }
 
-    $(document).on("pagecreate", "#page1", function() {
-        updateVar();
+    $(document).on("pagecreate", "#page1", function () {
+        updateVar('A');
+        updateVar('B');
+        updateVar('C');
+        updateVar('D');
         $(
             function () {
                 $('#slider-A').change(function () {
                     $.getJSON('/varA', {
                         state: $('#slider-A').val()
+                    });
+                });
+            });
+        $(
+            function () {
+                $('#slider-B').change(function () {
+                    $.getJSON('/varB', {
+                        state: $('#slider-B').val()
+                    });
+                });
+            });
+        $(
+            function () {
+                $('#slider-C').change(function () {
+                    $.getJSON('/varC', {
+                        state: $('#slider-C').val()
+                    });
+                });
+            });
+        $(
+            function () {
+                $('#slider-D').change(function () {
+                    $.getJSON('/varD', {
+                        state: $('#slider-D').val()
                     });
                 });
             });
@@ -45,7 +72,20 @@
 
     <div data-role="ui-content">
         <label for="slider-A">A</label>
-        <input type="range" name="slider-A" id="slider-A" min="0" max="1000" step="1" data-highlight="true" required="required"/>
+        <input type="range" name="slider-A" id="slider-A" min="0" max="1000" step="1" data-highlight="true"
+               required="required"/>
+
+        <label for="slider-B">B</label>
+        <input type="range" name="slider-B" id="slider-B" min="0" max="1000" step="1" data-highlight="true"
+               required="required"/>
+
+        <label for="slider-C">C</label>
+        <input type="range" name="slider-C" id="slider-C" min="0" max="1000" step="1" data-highlight="true"
+               required="required"/>
+
+        <label for="slider-D">D</label>
+        <input type="range" name="slider-C" id="slider-D" min="0" max="1000" step="1" data-highlight="true"
+               required="required"/>
     </div>
     <div data-role="footer">
     </div>

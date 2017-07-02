@@ -34,6 +34,15 @@ func main() {
 	m.Get("/varA", func(ctx *macaron.Context) string {
 		return getVar(ctx, "A")
 	})
+	m.Get("/varB", func(ctx *macaron.Context) string {
+		return getVar(ctx, "B")
+	})
+	m.Get("/varC", func(ctx *macaron.Context) string {
+		return getVar(ctx, "C")
+	})
+	m.Get("/varD", func(ctx *macaron.Context) string {
+		return getVar(ctx, "D")
+	})
 
 	m.Run()
 	//animation.Start()
