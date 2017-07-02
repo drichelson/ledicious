@@ -21,7 +21,7 @@ func main() {
 	vars["C"] = 500
 	vars["D"] = 500
 
-	colors["A"] = "ff0000"
+	colors["A"] = "ff00FF"
 	colors["B"] = "00ff00"
 	colors["C"] = "0000ff"
 	colors["D"] = "000000"
@@ -92,7 +92,7 @@ func getColor(ctx *macaron.Context, varName string) string {
 		return "{\"state\": \"" + colors[varName] + "\"}"
 	}
 	colors[varName] = newVal
-	fmt.Printf("new color: %s %d\n", varName, newVal)
+	fmt.Printf("new color: %s %s\n", varName, newVal)
 	return "{\"state\": \"" + newVal + "\"}"
 }
 

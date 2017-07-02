@@ -68,10 +68,56 @@
                 });
             });
 
-        $('#colorpickerA').ColorPicker({flat: true});
-        $('#colorpickerB').ColorPicker({flat: true});
-        $('#colorpickerC').ColorPicker({flat: true});
-        $('#colorpickerD').ColorPicker({flat: true});
+
+        function getColor(varName) {
+            var color = "";
+            $.ajax({
+                dataType: "json",
+                url: '/color' + varName,
+                async: false,
+                success: function (data) {
+                    color = data.state;
+                }
+            });
+            return color;
+        }
+
+        $('#colorpickerA').ColorPicker({
+            flat: true,
+            color: getColor("A"),
+            onChange: function (hsb, hex, rgb) {
+                $.getJSON('/colorA', {
+                    state: hex
+                });
+            }
+        });
+        $('#colorpickerB').ColorPicker({
+            flat: true,
+            color: getColor("B"),
+            onChange: function (hsb, hex, rgb) {
+                $.getJSON('/colorB', {
+                    state: hex
+                });
+            }
+        });
+        $('#colorpickerC').ColorPicker({
+            flat: true,
+            color: getColor("C"),
+            onChange: function (hsb, hex, rgb) {
+                $.getJSON('/colorC', {
+                    state: hex
+                });
+            }
+        });
+        $('#colorpickerD').ColorPicker({
+            flat: true,
+            color: getColor("D"),
+            onChange: function (hsb, hex, rgb) {
+                $.getJSON('/colorD', {
+                    state: hex
+                });
+            }
+        });
     });
 </script>
 
@@ -100,22 +146,18 @@
 
     <p>Color A
     <div id="colorpickerA">
-        <div style="background-color: #00ff00"></div>
     </div>
     </p>
     <p>Color B
     <div id="colorpickerB">
-        <div style="background-color: #00ff00"></div>
     </div>
     </p>
     <p>Color C
     <div id="colorpickerC">
-        <div style="background-color: #00ff00"></div>
     </div>
     </p>
     <p>Color D
     <div id="colorpickerD">
-        <div style="background-color: #00ff00"></div>
     </div>
     </p>
 
