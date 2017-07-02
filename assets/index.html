@@ -2,10 +2,14 @@
 <head>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="jquery.mobile.min.css"/>
+    <link rel="stylesheet" href="colorpicker/css/colorpicker.css" type="text/css"/>
+
 
     <!--This was on 1.9.x, so maybe switch it back if needed-->
     <script src="jquery-1.9.1.min.js"></script>
     <script src="jquery.mobile.min.js"></script>
+    <script type="text/javascript" src="colorpicker/js/colorpicker.js"></script>
+
 </head>
 
 <style>
@@ -63,6 +67,11 @@
                     });
                 });
             });
+
+        $('#colorpickerA').ColorPicker({flat: true});
+        $('#colorpickerB').ColorPicker({flat: true});
+        $('#colorpickerC').ColorPicker({flat: true});
+        $('#colorpickerD').ColorPicker({flat: true});
     });
 </script>
 
@@ -86,7 +95,30 @@
         <label for="slider-D">D</label>
         <input type="range" name="slider-C" id="slider-D" min="0" max="1000" step="1" data-highlight="true"
                required="required"/>
+
     </div>
+
+    <p>Color A
+    <div id="colorpickerA">
+        <div style="background-color: #00ff00"></div>
+    </div>
+    </p>
+    <p>Color B
+    <div id="colorpickerB">
+        <div style="background-color: #00ff00"></div>
+    </div>
+    </p>
+    <p>Color C
+    <div id="colorpickerC">
+        <div style="background-color: #00ff00"></div>
+    </div>
+    </p>
+    <p>Color D
+    <div id="colorpickerD">
+        <div style="background-color: #00ff00"></div>
+    </div>
+    </p>
+
     <div data-role="footer">
     </div>
 </div>

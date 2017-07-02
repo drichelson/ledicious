@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	vars = make(map[string]int)
+	vars   = make(map[string]int)
+	colors = make(map[string]string)
 )
 
 func main() {
@@ -19,6 +20,11 @@ func main() {
 	vars["B"] = 500
 	vars["C"] = 500
 	vars["D"] = 500
+
+	colors["A"] = "ff0000"
+	colors["B"] = "00ff00"
+	colors["C"] = "0000ff"
+	colors["D"] = "000000"
 
 	m := macaron.Classic()
 	m.Use(macaron.Static("assets",
@@ -44,6 +50,18 @@ func main() {
 		return getVar(ctx, "D")
 	})
 
+	m.Get("/colorA", func(ctx *macaron.Context) string {
+		return getColor(ctx, "A")
+	})
+	m.Get("/colorB", func(ctx *macaron.Context) string {
+		return getColor(ctx, "B")
+	})
+	m.Get("/colorC", func(ctx *macaron.Context) string {
+		return getColor(ctx, "C")
+	})
+	m.Get("/colorD", func(ctx *macaron.Context) string {
+		return getColor(ctx, "D")
+	})
 	m.Run()
 	//animation.Start()
 }
@@ -65,7 +83,17 @@ func getVar(ctx *macaron.Context, varName string) string {
 	vars[varName] = newVal
 	fmt.Printf("new value: %s %d\n", varName, newVal)
 	return "{\"state\": \"" + newValString + "\"}"
+}
 
+func getColor(ctx *macaron.Context, varName string) string {
+	ctx.Header().Set("Content-Type", "application/json")
+	newVal := ctx.Query("state")
+	if newVal == "" {
+		return "{\"state\": \"" + colors[varName] + "\"}"
+	}
+	colors[varName] = newVal
+	fmt.Printf("new color: %s %d\n", varName, newVal)
+	return "{\"state\": \"" + newVal + "\"}"
 }
 
 //Teensy:
