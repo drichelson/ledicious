@@ -2,7 +2,7 @@ package animation
 
 import (
 	"fmt"
-	"github.com/drichelson/usb-test/usb"
+	"github.com/drichelson/ledicious/usb"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
 	"math/rand"

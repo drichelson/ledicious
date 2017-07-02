@@ -2,22 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/drichelson/usb-test/animation"
+	//"github.com/drichelson/ledicious/animation"
 	"gopkg.in/macaron.v1"
 	"log"
 	"net/http"
 	"strconv"
-	"sync"
 )
 
 var (
-	webVar1 = 0
-	webVar2 = 0
-	webLock = &sync.RWMutex{}
+	vars = make(map[string]int)
 )
 
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
+	vars["A"] = 500
+	vars["B"] = 500
+	vars["C"] = 500
+	vars["D"] = 500
 
 	m := macaron.Classic()
 	m.Use(macaron.Static("assets",
@@ -30,44 +31,32 @@ func main() {
 			IndexFile: "index.html",
 		}))
 
-	m.Get("/var", func(ctx *macaron.Context) string {
-		webLock.RLock()
-		defer webLock.RUnlock()
-		ctx.Header().Set("Content-Type", "application/json")
-		newValString := ctx.Query("state")
-		if newValString == "" {
-			return "{\"state\": \"" + strconv.Itoa(webVar1) + "\"}"
-		}
-		newVal, err := strconv.Atoi(newValString)
-		if err != nil {
-			ctx.Resp.WriteHeader(http.StatusBadRequest)
-			return "not a number!"
-		}
-		webVar1 = newVal
-		fmt.Printf("new value: %d\n", newVal)
-		return "{\"state\": \"" + newValString + "\"}"
-
+	m.Get("/varA", func(ctx *macaron.Context) string {
+		return getVar(ctx, "A")
 	})
 
-	m.Put("/var", func(ctx *macaron.Context) string {
-		webLock.Lock()
-		defer webLock.Unlock()
-		ctx.Header().Set("Content-Type", "application/json")
+	m.Run()
+	//animation.Start()
+}
 
-		newValString := ctx.Query("state")
-		newVal, err := strconv.Atoi(newValString)
-		if err != nil {
-			ctx.Resp.WriteHeader(http.StatusBadRequest)
-			return "not a number!"
-		}
-		webVar1 = newVal
-		fmt.Printf("new value: %d", newVal)
-		return "{\"state\": \"" + newValString + "\"}"
+// Generic handler for getting/setting vars.
+// Use with GET to retrieve the var
+// Use with PUT with query param state=<newVal> to set var.
+func getVar(ctx *macaron.Context, varName string) string {
+	ctx.Header().Set("Content-Type", "application/json")
+	newValString := ctx.Query("state")
+	if newValString == "" {
+		return "{\"state\": \"" + strconv.Itoa(vars[varName]) + "\"}"
+	}
+	newVal, err := strconv.Atoi(newValString)
+	if err != nil {
+		ctx.Resp.WriteHeader(http.StatusBadRequest)
+		return "not a number!"
+	}
+	vars[varName] = newVal
+	fmt.Printf("new value: %s %d\n", varName, newVal)
+	return "{\"state\": \"" + newValString + "\"}"
 
-	})
-
-	go m.Run()
-	animation.Start()
 }
 
 //Teensy:
