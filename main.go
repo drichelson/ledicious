@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	//"github.com/drichelson/ledicious/animation"
+	"github.com/drichelson/ledicious/animation"
 	"gopkg.in/macaron.v1"
 	"log"
 	"net/http"
@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	vars   = make(map[string]int)
-	colors = make(map[string]string)
+	vars    = make(map[string]int)
+	colors  = make(map[string]string)
+	control = animation.Control{&vars, &colors}
 )
 
 func main() {
@@ -36,6 +37,11 @@ func main() {
 			// IndexFile defines which file to serve as index if it exists. Default is "index.html".
 			IndexFile: "index.html",
 		}))
+
+	m.Get("/wow", func(ctx *macaron.Context) string {
+		log.Println("wow: " + control.State())
+		return ""
+	})
 
 	m.Get("/varA", func(ctx *macaron.Context) string {
 		return getVar(ctx, "A")
@@ -82,6 +88,7 @@ func getVar(ctx *macaron.Context, varName string) string {
 	}
 	vars[varName] = newVal
 	fmt.Printf("new value: %s %d\n", varName, newVal)
+	log.Println(control.State())
 	return "{\"state\": \"" + newValString + "\"}"
 }
 
@@ -93,8 +100,6 @@ func getColor(ctx *macaron.Context, varName string) string {
 	}
 	colors[varName] = newVal
 	fmt.Printf("new color: %s %s\n", varName, newVal)
+	log.Println(control.State())
 	return "{\"state\": \"" + newVal + "\"}"
 }
-
-//Teensy:
-// descriptor: &{Length:18 DescriptorType:Device descriptor. USBSpecification:0x0200 (2.00) DeviceClass:Communications class. DeviceSubClass:0 DeviceProtocol:0 MaxPacketSize0:64 VendorID:5824 ProductID:1155 DeviceReleaseNumber:0x0100 (1.00) ManufacturerIndex:1 ProductIndex:2 SerialNumberIndex:3 NumConfigurations:1}

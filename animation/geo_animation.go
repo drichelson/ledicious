@@ -16,7 +16,8 @@ var (
 )
 
 type GeoAnimation struct {
-	pixels []*Pixel
+	control Control
+	pixels  []*Pixel
 }
 
 type bubble struct {
@@ -25,9 +26,10 @@ type bubble struct {
 }
 
 //http://www.rapidtables.com/web/color/color-picker.htm
-func NewGeoAnimation() Animation {
+func NewGeoAnimation(control Control) Animation {
 	a := GeoAnimation{
-		pixels: []*Pixel{pixels.getRandomPixel()},
+		control: control,
+		pixels:  []*Pixel{pixels.getRandomPixel()},
 	}
 	for i := 0; i < 7; i++ {
 		bubbles = append(bubbles, newBubble(0))

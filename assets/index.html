@@ -118,6 +118,14 @@
                 });
             }
         });
+
+        $(
+            function () {
+                $('#wow').click(function () {
+                    $.getJSON('/wow', {
+                    });
+                });
+            });
     });
 </script>
 
@@ -160,6 +168,8 @@
     <div id="colorpickerD">
     </div>
     </p>
+    <button class="ui-btn" id="wow">Wow!</button>
+
 
     <div data-role="footer">
     </div>

@@ -17,6 +17,13 @@ Minimum visible B: 0.00784314
 */
 
 type BrightnessTestAnimation struct {
+	control Control
+}
+
+func NewBrightnessTestAnimation(control Control) BrightnessTestAnimation {
+	return BrightnessTestAnimation{
+		control: control,
+	}
 }
 
 func (a *BrightnessTestAnimation) frame(elapsed time.Duration, frameCount int) {

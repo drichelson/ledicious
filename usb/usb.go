@@ -7,6 +7,9 @@ import (
 	"math"
 )
 
+//Teensy:
+// descriptor: &{Length:18 DescriptorType:Device descriptor. USBSpecification:0x0200 (2.00) DeviceClass:Communications class. DeviceSubClass:0 DeviceProtocol:0 MaxPacketSize0:64 VendorID:5824 ProductID:1155 DeviceReleaseNumber:0x0100 (1.00) ManufacturerIndex:1 ProductIndex:2 SerialNumberIndex:3 NumConfigurations:1}
+
 const (
 	teensyVendorID  = 5824
 	teensyProductID = 1155

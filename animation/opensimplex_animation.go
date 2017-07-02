@@ -10,6 +10,7 @@ import (
 )
 
 type OpenSimplexAnimation struct {
+	control  Control
 	noise    *opensimplex.Noise
 	gradient GradientTable
 	histo    metrics.Histogram
@@ -18,7 +19,7 @@ type OpenSimplexAnimation struct {
 }
 
 //http://www.rapidtables.com/web/color/color-picker.htm
-func NewOpenSimplexAnimation() *OpenSimplexAnimation {
+func NewOpenSimplexAnimation(control Control) *OpenSimplexAnimation {
 	gradientTable := GradientTable{
 		{colorful.Hsv(0.0, 1.0, 0.3), 0.0}, // red
 		{colorful.Hsv(0.0, 1.0, 0.0), 0.1},
@@ -27,6 +28,7 @@ func NewOpenSimplexAnimation() *OpenSimplexAnimation {
 	}
 
 	return &OpenSimplexAnimation{
+		control:  control,
 		noise:    opensimplex.NewWithSeed(time.Now().UnixNano()),
 		gradient: gradientTable,
 		histo:    metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*10000, 1.0)),

@@ -42,7 +42,7 @@ type Pixel struct {
 	disabled bool
 }
 
-func Start() {
+func Start(control Control) {
 	usb.Initialize()
 	go func() {
 		for {
@@ -52,9 +52,9 @@ func Start() {
 
 	var a Animation
 
-	a = NewOpenSimplexAnimation()
-	//a = NewGeoAnimation()
-	//a = &BrightnessTestAnimation{}
+	a = NewOpenSimplexAnimation(control)
+	//a = NewGeoAnimation(control)
+	//a = NewBrightnessTestAnimation(control)
 	startTime := time.Now()
 	checkPointTime := startTime
 	frameCount := 0
