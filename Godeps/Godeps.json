@@ -7,6 +7,10 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/StefanSchroeder/Golang-Ellipsoid/ellipsoid",
+			"Rev": "8fa6ccb8ea661b7d37e95abcb5b30a3405f8ab7c"
+		},
+		{
 			"ImportPath": "github.com/Unknwon/com",
 			"Comment": "v1-12-g0db4a62",
 			"Rev": "0db4a625e949e956314d7d1adea9bf82384cc10c"
