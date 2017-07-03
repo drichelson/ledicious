@@ -1,7 +1,6 @@
 package animation
 
 import (
-	"fmt"
 	"github.com/lucasb-eyer/go-colorful"
 	"time"
 )
@@ -20,23 +19,21 @@ type BrightnessTestAnimation struct {
 	control Control
 }
 
-func NewBrightnessTestAnimation(control Control) BrightnessTestAnimation {
-	return BrightnessTestAnimation{
+func NewBrightnessTestAnimation(control Control) *BrightnessTestAnimation {
+	return &BrightnessTestAnimation{
 		control: control,
 	}
 }
 
 func (a *BrightnessTestAnimation) frame(elapsed time.Duration, frameCount int) {
-	//v := (float64(frameCount%100) / 100.0) / 4.0
-	//TODO: wire in control system instead of 500.0
-	v := float64(500.0) / 1000.0
-	for i, _ := range pixels.active {
-		//v := float64(p.col) / float64(len(cols))
+	//v := a.control.GetVar("A")
+	for i, p := range pixels.active {
+		v := float64(p.col) / float64(len(cols))
 		c := colorful.Color{R: v}
+		//fmt.Printf("v: %v\n", v)
 		pixels.active[i].color = &c
 	}
 	//fmt.Printf("v: %v\n", v)
-	fmt.Printf("v: %v\n", v)
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 }

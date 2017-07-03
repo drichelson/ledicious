@@ -39,7 +39,8 @@ func init() {
 }
 
 func point(lat, lon float64) s2.Point {
-	return s2.PointFromLatLng(s2.LatLngFromDegrees(lat, lon))
+	// The generated lat/lon from the old scala project gets the signs reversed on latitude, so we fix it here:
+	return s2.PointFromLatLng(s2.LatLngFromDegrees(lat*-1.0, lon))
 }
 
 func loadMapping() {
