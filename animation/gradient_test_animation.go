@@ -1,17 +1,9 @@
 package animation
 
 import (
-	"fmt"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
 	"time"
-)
-
-var (
-	NorthPole          = s2.PointFromLatLng(s2.LatLngFromDegrees(90.0, 0.0))
-	SouthPole          = s2.PointFromLatLng(s2.LatLngFromDegrees(-90.0, 0.0))
-	EquatorMeridian    = s2.PointFromLatLng(s2.LatLngFromDegrees(0.0, 0.0))
-	EquatorNonMeridian = s2.PointFromLatLng(s2.LatLngFromDegrees(0.0, 180.0))
 )
 
 type GradientTestAnimation struct {
@@ -57,21 +49,25 @@ func (a *GradientTestAnimation) frame(elapsed time.Duration, frameCount int) {
 	//	a.lat = -90.0
 	//}
 
-	lat := (a.control.GetVar("A") * 180.0) - 90.0
+	//aVar := a.control.GetVar("A")
+
 	for i, p := range pixels.active {
-		if s2.LatLngFromPoint(p.Point).Lat.Degrees() < lat {
-			pixels.active[i].color = &colorful.Color{R: 1.0}
-		}
+		latDegrees := s2.LatLngFromPoint(p.Point).Lat.Degrees()
+		normalizedLatDegrees := latDegrees - minVisibleLatitude
+		gradientInput := normalizedLatDegrees / latitudeRange
+		//fmt.Printf("lat: %3.2f gradientInput: %3.2f\n", latDegrees, gradientInput)
+		color := a.gradient.GetInterpolatedColorFor(gradientInput)
+		pixels.active[i].color = &color
+		//}
 		//fmt.Printf("lat: %3.2f lon: %3.2f dist from south pole: %3.2f\n",
 		//	s2.LatLngFromPoint(p.Point).Lat.Degrees(),
 		//	s2.LatLngFromPoint(p.Point).Lng.Degrees(),
 		//	p.Point.Distance(SouthPole).Degrees())
-		//c := a.gradient.GetInterpolatedColorFor(noiseValNormalized)
 		//p.color = &c
 		//fmt.Printf("%v\n", noiseVal)
 	}
 
-	time.Sleep(100 * time.Millisecond)
-	fmt.Println(lat)
-	a.lat += 1.0
+	//time.Sleep(50000 * time.Millisecond)
+	//fmt.Println(lat)
+	//a.lat += 1.0
 }
