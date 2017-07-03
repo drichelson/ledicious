@@ -10,22 +10,22 @@ import (
 )
 
 var (
-	vars    = make(map[string]int)
-	colors  = make(map[string]string)
-	control = animation.Control{&vars, &colors}
+	//vars    = make(map[string]float64)
+	//colors  = make(map[string]string)
+	control = animation.NewControl()
 )
 
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
-	vars["A"] = 500
-	vars["B"] = 500
-	vars["C"] = 500
-	vars["D"] = 500
+	control.SetVar("A", 0.5)
+	control.SetVar("B", 0.5)
+	control.SetVar("C", 0.5)
+	control.SetVar("D", 0.5)
 
-	colors["A"] = "ff00FF"
-	colors["B"] = "00ff00"
-	colors["C"] = "0000ff"
-	colors["D"] = "000000"
+	control.SetColorHex("A", "ff00FF")
+	control.SetColorHex("B", "ff00FF")
+	control.SetColorHex("C", "ff00FF")
+	control.SetColorHex("D", "ff00FF")
 
 	m := macaron.Classic()
 	m.Use(macaron.Static("assets",
@@ -68,8 +68,8 @@ func main() {
 	m.Get("/colorD", func(ctx *macaron.Context) string {
 		return getColor(ctx, "D")
 	})
-	m.Run()
-	//animation.Start()
+	go m.Run()
+	animation.Start(control)
 }
 
 // Generic handler for getting/setting vars.
@@ -79,14 +79,14 @@ func getVar(ctx *macaron.Context, varName string) string {
 	ctx.Header().Set("Content-Type", "application/json")
 	newValString := ctx.Query("state")
 	if newValString == "" {
-		return "{\"state\": \"" + strconv.Itoa(vars[varName]) + "\"}"
+		return "{\"state\": \"" + strconv.Itoa(int(control.GetVar(varName)*1000.0)) + "\"}"
 	}
 	newVal, err := strconv.Atoi(newValString)
 	if err != nil {
 		ctx.Resp.WriteHeader(http.StatusBadRequest)
 		return "not a number!"
 	}
-	vars[varName] = newVal
+	control.SetVar(varName, float64(newVal)/1000.0)
 	fmt.Printf("new value: %s %d\n", varName, newVal)
 	log.Println(control.State())
 	return "{\"state\": \"" + newValString + "\"}"
@@ -96,9 +96,9 @@ func getColor(ctx *macaron.Context, varName string) string {
 	ctx.Header().Set("Content-Type", "application/json")
 	newVal := ctx.Query("state")
 	if newVal == "" {
-		return "{\"state\": \"" + colors[varName] + "\"}"
+		return "{\"state\": \"" + control.GetColorHex(varName) + "\"}"
 	}
-	colors[varName] = newVal
+	control.SetColorHex(varName, newVal)
 	fmt.Printf("new color: %s %s\n", varName, newVal)
 	log.Println(control.State())
 	return "{\"state\": \"" + newVal + "\"}"

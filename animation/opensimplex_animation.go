@@ -18,24 +18,40 @@ type OpenSimplexAnimation struct {
 	max      float64
 }
 
-//http://www.rapidtables.com/web/color/color-picker.htm
 func NewOpenSimplexAnimation(control Control) *OpenSimplexAnimation {
-	gradientTable := GradientTable{
-		{colorful.Hsv(0.0, 1.0, 0.3), 0.0}, // red
-		{colorful.Hsv(0.0, 1.0, 0.0), 0.1},
-		{colorful.Hsv(234.0, 0.0, 0.0), 0.90},
-		{colorful.Hsv(234.0, 1.0, 0.3), 1.0}, // purple
-	}
+	colorA := colorful.Hsv(0.0, 1.0, 0.3) // red
+	colorB := colorful.Hsv(0.0, 1.0, 0.0)
+	colorC := colorful.Hsv(234.0, 0.0, 0.0)
+	colorD := colorful.Hsv(234.0, 1.0, 0.3) // purple
+
+	control.SetColor("A", colorA)
+	control.SetColor("B", colorB)
+	control.SetColor("C", colorC)
+	control.SetColor("D", colorD)
+
+	control.SetVar("A", 0.0)
+	control.SetVar("B", 0.1)
+	control.SetVar("C", 0.9)
+	control.SetVar("D", 1.0)
 
 	return &OpenSimplexAnimation{
-		control:  control,
-		noise:    opensimplex.NewWithSeed(time.Now().UnixNano()),
-		gradient: gradientTable,
-		histo:    metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*10000, 1.0)),
+		control: control,
+		noise:   opensimplex.NewWithSeed(time.Now().UnixNano()),
+		histo:   metrics.GetOrRegisterHistogram("histo", metrics.DefaultRegistry, metrics.NewExpDecaySample(expectedPixelCount*10000, 1.0)),
+	}
+}
+
+func (a *OpenSimplexAnimation) syncControl() {
+	a.gradient = GradientTable{
+		{a.control.GetColor("A"), a.control.GetVar("A")},
+		{a.control.GetColor("B"), a.control.GetVar("B")},
+		{a.control.GetColor("C"), a.control.GetVar("C")},
+		{a.control.GetColor("D"), a.control.GetVar("D")},
 	}
 }
 
 func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
+	a.syncControl()
 	for _, p := range pixels.active {
 		noiseVal := a.noise.Eval4(p.x, p.y, p.z, elapsed.Seconds()/10.0)
 		a.min = math.Min(a.min, noiseVal)
