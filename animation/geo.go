@@ -3,11 +3,13 @@ package animation
 import (
 	"github.com/StefanSchroeder/Golang-Ellipsoid/ellipsoid"
 	"github.com/golang/geo/s2"
+	"math"
 )
 
 const (
 	minVisibleLatitude = -48.75 //all points south of here don't have any pixels associated with them.
 	latitudeRange      = 90.0 + 48.75
+	epsilon            = 0.00001
 )
 
 var (
@@ -35,9 +37,8 @@ func float64Equal(a, b float64) bool {
 	if a == b {
 		return true
 	}
-	aInt := int(a * 100.0)
-	bInt := int(b * 100.0)
-	return aInt == bInt
+	diff := math.Abs(a-b) / math.Abs(a)
+	return diff < epsilon
 }
 
 func reverseBearing(bearing float64) float64 {

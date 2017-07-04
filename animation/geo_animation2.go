@@ -37,7 +37,7 @@ func NewGeoAnimation2(control Control) Animation {
 }
 
 func newMover() mover {
-	return mover{cap: newCap(), color: colorful.WarmColor(), bearing: 360.0} //float64(rand.Intn(3600))/10.0 - 180.0}
+	return mover{cap: newCap(), color: colorful.WarmColor(), bearing: 180.0} //float64(rand.Intn(3600))/10.0 - 180.0}
 }
 
 func (m *mover) move(distance float64) {
@@ -47,8 +47,10 @@ func (m *mover) move(distance float64) {
 	newCenter := toPoint(m.cap.Center(), distance, oldBearing)
 	newLL := s2.LatLngFromPoint(newCenter)
 	_, reverseB := geo.To(newLL.Lat.Degrees(), newLL.Lng.Degrees(), oldLL.Lat.Degrees(), oldLL.Lng.Degrees())
-
-	fmt.Printf("reverse bearing: %2.3f\n", reverseB)
+	if float64Equal(reverseB, 360.0) {
+		reverseB = 0.0
+	}
+	fmt.Printf("reverse bearing: %2.5f\n", reverseB)
 
 	if float64Equal(reverseBearing(oldBearing), reverseB) {
 		fmt.Printf("not changing bearing\n")
@@ -88,5 +90,5 @@ func (a *GeoAnimation2) frame(elapsed time.Duration, frameCount int) {
 			}
 		}
 	}
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 }

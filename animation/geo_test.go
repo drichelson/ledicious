@@ -42,7 +42,12 @@ func TestFloat64Equal(t *testing.T) {
 	assert.True(t, float64Equal(0.0, 0.0))
 	assert.True(t, float64Equal(180.0, 180.0))
 	assert.True(t, float64Equal(180.0, 180.0000001))
+	assert.True(t, float64Equal(360.001, 359.999))
+	assert.True(t, float64Equal(360.001, 360.001))
+	assert.True(t, float64Equal(360.01, 360.01))
 
+	assert.False(t, float64Equal(360.01, 359.99))
+	assert.False(t, float64Equal(360.01, 360.00))
 	assert.False(t, float64Equal(-180.0, 180.0))
 	assert.False(t, float64Equal(-180.0, 180.001))
 }
