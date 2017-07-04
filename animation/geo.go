@@ -30,3 +30,23 @@ func toPoint(start s2.Point, distance, bearing float64) s2.Point {
 	lat, lon := geo.At(startLatLong.Lat.Degrees(), startLatLong.Lng.Degrees(), distance, bearing)
 	return s2.PointFromLatLng(s2.LatLngFromDegrees(lat, lon))
 }
+
+func float64Equal(a, b float64) bool {
+	if a == b {
+		return true
+	}
+	aInt := int(a * 100.0)
+	bInt := int(b * 100.0)
+	return aInt == bInt
+}
+
+func reverseBearing(bearing float64) float64 {
+	if bearing >= 180.0 {
+		return bearing - 180.0
+	}
+	newBearing := bearing + 180.0
+	if bearing > 360.0 {
+		return bearing - 180.0
+	}
+	return newBearing
+}

@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 	"github.com/golang/geo/s2"
+	"github.com/stretchr/testify/assert"
 )
 
 //earth circum: 40,075 km
@@ -32,7 +33,24 @@ func TestGeo(t *testing.T) {
 		end := toPoint(startPoint, distance, bearing)
 		endLatLon := s2.LatLngFromPoint(end)
 		//lat2, lon2 = geo1.At(lat1, lon1, distance, bearing)
-		fmt.Printf("distance: %f: %f,%f\n", distance, endLatLon.Lat.Degrees(), endLatLon.Lng.Degrees())
+		fmt.Printf("distance: %3.2f: %3.2f, %3.2f\n", distance, endLatLon.Lat.Degrees(), endLatLon.Lng.Degrees())
 
 	}
+}
+
+func TestFloat64Equal(t *testing.T) {
+	assert.True(t, float64Equal(0.0, 0.0))
+	assert.True(t, float64Equal(180.0, 180.0))
+	assert.True(t, float64Equal(180.0, 180.0000001))
+
+	assert.False(t, float64Equal(-180.0, 180.0))
+	assert.False(t, float64Equal(-180.0, 180.001))
+}
+
+func TestReverseBearing(t *testing.T) {
+	assert.Equal(t, 0.0, reverseBearing(180.0))
+	assert.Equal(t, 180.0, reverseBearing(0.0))
+	assert.Equal(t, 180.0, reverseBearing(360.0))
+	assert.Equal(t, 270.0, reverseBearing(90.0))
+
 }

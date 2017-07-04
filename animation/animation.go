@@ -54,8 +54,9 @@ func Start(control Control) {
 
 	//a = NewOpenSimplexAnimation(control)
 	//a = NewGeoAnimation(control)
+	a = NewGeoAnimation2(control)
 	//a = NewBrightnessTestAnimation(control)
-	a = NewGradientTestAnimation(control)
+	//a = NewGradientTestAnimation(control)
 	startTime := time.Now()
 	checkPointTime := startTime
 	frameCount := 0
