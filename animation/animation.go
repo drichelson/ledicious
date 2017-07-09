@@ -53,6 +53,7 @@ func Start(control Control) {
 	var a Animation
 
 	//a = NewOpenSimplexAnimation(control)
+	//a = NewVuSimplexAnimation(control)
 	//a = NewGeoAnimation(control)
 	a = NewGeoAnimation2(control)
 	//a = NewBrightnessTestAnimation(control)

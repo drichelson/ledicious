@@ -4,14 +4,18 @@ import (
 	"fmt"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
-	"math"
 	"math/rand"
+	"sync"
 	"time"
 )
 
-const ()
+const (
+	moverCount = 5
+)
 
-var ()
+var (
+	black = colorful.Color{}
+)
 
 type GeoAnimation2 struct {
 	control Control
@@ -26,6 +30,8 @@ type mover struct {
 	bearing       float64
 	totalDistance float64
 	distanceSoFar float64
+	tailLength    int
+	tail          []s2.Cap
 	done          bool
 }
 
@@ -36,7 +42,6 @@ func (m *mover) String() string {
 
 //http://www.rapidtables.com/web/color/color-picker.htm
 func NewGeoAnimation2(control Control) Animation {
-	moverCount := 20
 	movers := make([]mover, moverCount)
 	for i, _ := range movers {
 		movers[i] = newMover()
@@ -50,13 +55,21 @@ func NewGeoAnimation2(control Control) Animation {
 
 func newMover() mover {
 	cap := newRandomCap()
+
+	tailLength := 50
+	tail := make([]s2.Cap, tailLength)
+	for i, _ := range tail {
+		tail[i] = cap
+	}
 	return mover{
 		cap:           cap,
 		startPoint:    cap.Center(),
-		speed:         float64(rand.Intn(500) + 500),
+		speed:         float64(rand.Intn(40) + 50),
 		color:         colorful.WarmColor(),
 		bearing:       float64(rand.Intn(3600)) / 10.0,
-		totalDistance: float64(rand.Intn(100000) + 20000),
+		totalDistance: float64(rand.Intn(100000) + 20000000000),
+		tailLength:    tailLength,
+		tail:          tail,
 		done:          false,
 	}
 }
@@ -78,22 +91,21 @@ func (m *mover) move() {
 
 	//fmt.Printf("distance so far: %2.3f to travel now: %2.3f\n", m.distanceSoFar, distanceToTravel)
 	m.distanceSoFar = distanceToTravel
-	distanceSoFarAsPercent := math.Min(1.0, m.distanceSoFar/m.totalDistance)
-	//if distanceSoFarAsPercent >= .8 {
-	//fade out
-	h, s, v := m.color.Hsv()
-	newV := v*(1.0-distanceSoFarAsPercent) + 0.01
-	//fmt.Printf("oldV: %2.3f newV: %2.3f\n", v, newV)
-	m.color = colorful.Hsv(h, s, newV)
-	//if newV <= 0.01 {
-	//	m.done = true
-	//}
-	//}
+	//distanceSoFarAsPercent := math.Min(1.0, m.distanceSoFar/m.totalDistance)
+	//h, s, v := m.color.Hsv()
+	//newV := v*(1.0-distanceSoFarAsPercent) + 0.01
+	//m.color = colorful.Hsv(h, s, newV)
 
-	newCenter := toPoint(m.startPoint, distanceToTravel, oldBearing)
+	newCenterPoint := toPoint(m.startPoint, distanceToTravel, oldBearing)
 	//newLL := s2.LatLngFromPoint(newCenter)
 	//fmt.Printf("Old point: %s new point: %s\n", oldLL.String(), newLL.String())
-	m.cap = newCap(newCenter)
+	newCenter := newCap(newCenterPoint)
+	for i := m.tailLength - 1; i > 0; i-- {
+		m.tail[i] = m.tail[i-1]
+	}
+	m.tail[0] = newCenter
+	m.cap = newCenter
+	//fmt.Println(m.tail[4].Center().Distance(m.tail[0].Center()).String())
 	//detect north/south pole crossing:
 
 	//newLat := s2.LatLngFromPoint(newCenter).Lat.Degrees()
@@ -111,24 +123,40 @@ func (m *mover) move() {
 }
 
 func (a *GeoAnimation2) frame(elapsed time.Duration, frameCount int) {
+	wg := sync.WaitGroup{}
 	for i, m := range a.movers {
 		if m.done {
 			a.movers[i] = newMover()
 		}
-		a.movers[i].move()
-
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			a.movers[i].move()
+		}()
+		wg.Wait()
 		//newCenter := toPoint(b.cap.Center(), 100.0, -45.0)
 		//fmt.Printf("%d: %s\n", i, s2.LatLngFromPoint(newCenter).String())
 		//a.movers[i].cap = s2.CapFromCenterArea(newCenter, 0.01)
 	}
 
 	for _, b := range a.movers {
+		mover := b
 		color := b.color
 		for _, p := range pixels.active {
 			if b.cap.ContainsPoint(p.Point) {
 				p.color = &color
 			}
+			for i, t := range mover.tail {
+				blendAmount := float64(i) / float64(mover.tailLength)
+				if t.ContainsPoint(p.Point) {
+					//fmt.Println("tail")
+					newColor := color.BlendLab(black, blendAmount)
+					p.color = &newColor
+				}
+			}
+
 		}
+
 	}
-	time.Sleep(50 * time.Millisecond)
+	//time.Sleep(50 * time.Millisecond)
 }

@@ -6,6 +6,7 @@ import (
 	"gopkg.in/macaron.v1"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -13,10 +14,22 @@ var (
 	//vars    = make(map[string]float64)
 	//colors  = make(map[string]string)
 	control = animation.NewControl()
+	wowLog  log.Logger
 )
 
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
+
+	//create your file with desired read/write permissions
+	f, err := os.OpenFile("wowLog.txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//defer to close when you're done with it, not because you think it's idiomatic!
+	defer f.Close()
+	wowLog.SetOutput(f)
+
 	control.SetVar("A", 0.5)
 	control.SetVar("B", 0.5)
 	control.SetVar("C", 0.5)
@@ -39,7 +52,7 @@ func main() {
 		}))
 
 	m.Get("/wow", func(ctx *macaron.Context) string {
-		log.Println("wow: " + control.State())
+		wowLog.Println(control.State())
 		return ""
 	})
 
