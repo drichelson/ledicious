@@ -38,6 +38,23 @@ func TestGeo(t *testing.T) {
 	}
 }
 
+func TestGeo2(t *testing.T) {
+	startLat := 56.2500000
+	startLon := 73.1250000
+	expectedDistance := 1000.0
+	expectedBearing := 90.0
+	endLat, endLon := geo.At(startLat, startLon, expectedDistance, expectedBearing)
+	actualDistance, actualBearing := geo.To(startLat, startLon, endLat, endLon)
+	assert.InEpsilon(t, expectedDistance, actualDistance, 0.001)
+	assert.InEpsilon(t, expectedBearing, actualBearing, 0.001)
+
+	actualDistance, actualBearing = geo.To(endLat, endLon, startLat, startLon)
+	assert.InEpsilon(t, expectedDistance, actualDistance, 0.001)
+	assert.InEpsilon(t, expectedBearing, actualBearing, 0.001,
+		"Expected: %v actual: %v", expectedBearing, actualBearing)
+
+}
+
 func TestFloat64Equal(t *testing.T) {
 	assert.True(t, float64Equal(0.0, 0.0))
 	assert.True(t, float64Equal(180.0, 180.0))

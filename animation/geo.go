@@ -42,12 +42,9 @@ func float64Equal(a, b float64) bool {
 }
 
 func reverseBearing(bearing float64) float64 {
-	if bearing >= 180.0 {
-		return bearing - 180.0
+	bearing += 180.0
+	if bearing >= 360.0 {
+		return bearing - 360.0
 	}
-	newBearing := bearing + 180.0
-	if bearing > 360.0 {
-		return bearing - 180.0
-	}
-	return newBearing
+	return bearing
 }

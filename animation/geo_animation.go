@@ -42,7 +42,7 @@ func NewGeoAnimation(control Control) Animation {
 
 func newBubble(depth int) bubble {
 	newB := bubble{
-		cap:   newCap(),
+		cap:   newRandomCap(),
 		color: colorful.HappyColor(),
 		//color: colorful.Color{R: float64(rand.Intn(100)) / 100.0, G: float64(rand.Intn(100)), B: float64(rand.Intn(100))},
 	}
@@ -58,8 +58,12 @@ func newBubble(depth int) bubble {
 	return newB
 }
 
-func newCap() s2.Cap {
-	return s2.CapFromCenterArea(pixels.getRandomPixel().Point, 0.05)
+func newRandomCap() s2.Cap {
+	return newCap(pixels.getRandomPixel().Point)
+}
+
+func newCap(center s2.Point) s2.Cap {
+	return s2.CapFromCenterArea(center, 0.025)
 }
 
 func (a *GeoAnimation) frame(elapsed time.Duration, frameCount int) {
