@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
+	"math"
 	"math/rand"
 	"time"
 )
@@ -35,33 +36,14 @@ func (m *mover) String() string {
 
 //http://www.rapidtables.com/web/color/color-picker.htm
 func NewGeoAnimation2(control Control) Animation {
+	moverCount := 20
+	movers := make([]mover, moverCount)
+	for i, _ := range movers {
+		movers[i] = newMover()
+	}
 	a := GeoAnimation2{
 		control: control,
-		movers: []mover{
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-			newMover(),
-		},
+		movers:  movers,
 	}
 	return &a
 }
@@ -82,7 +64,7 @@ func newMover() mover {
 func (m *mover) move() {
 	if m.distanceSoFar > m.totalDistance || float64Equal(m.distanceSoFar, m.totalDistance) {
 		m.done = true
-		fmt.Println("Done!")
+		//fmt.Println("Done!")
 		return
 	}
 	//fmt.Printf("start: %s %s\n", m.String(), m.cap.Center().Vector.String())
@@ -96,6 +78,17 @@ func (m *mover) move() {
 
 	//fmt.Printf("distance so far: %2.3f to travel now: %2.3f\n", m.distanceSoFar, distanceToTravel)
 	m.distanceSoFar = distanceToTravel
+	distanceSoFarAsPercent := math.Min(1.0, m.distanceSoFar/m.totalDistance)
+	//if distanceSoFarAsPercent >= .8 {
+	//fade out
+	h, s, v := m.color.Hsv()
+	newV := v*(1.0-distanceSoFarAsPercent) + 0.01
+	//fmt.Printf("oldV: %2.3f newV: %2.3f\n", v, newV)
+	m.color = colorful.Hsv(h, s, newV)
+	//if newV <= 0.01 {
+	//	m.done = true
+	//}
+	//}
 
 	newCenter := toPoint(m.startPoint, distanceToTravel, oldBearing)
 	//newLL := s2.LatLngFromPoint(newCenter)
