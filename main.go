@@ -2,31 +2,29 @@ package main
 
 import (
 	"fmt"
-	"github.com/drichelson/ledicious/animation"
-	"gopkg.in/macaron.v1"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+
+	"github.com/drichelson/ledicious/animation"
+	"gopkg.in/macaron.v1"
 )
 
 var (
-	//vars    = make(map[string]float64)
-	//colors  = make(map[string]string)
 	control = animation.NewControl()
 	wowLog  log.Logger
 )
 
 func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds | log.Lshortfile)
+	wowLog.SetFlags(log.Ltime | log.Ldate)
 
 	//create your file with desired read/write permissions
 	f, err := os.OpenFile("wowLog.txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	//defer to close when you're done with it, not because you think it's idiomatic!
 	defer f.Close()
 	wowLog.SetOutput(f)
 
