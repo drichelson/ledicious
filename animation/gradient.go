@@ -21,7 +21,7 @@ func (self GradientTable) GetInterpolatedColorFor(t float64) colorful.Color {
 		if c1.Pos <= t && t <= c2.Pos {
 			// We are in between c1 and c2. Go blend them!
 			t := (t - c1.Pos) / (c2.Pos - c1.Pos)
-			return c1.Col.BlendHcl(c2.Col, t).Clamped()
+			return c1.Col.BlendLab(c2.Col, t).Clamped()
 		}
 	}
 

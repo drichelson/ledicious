@@ -11,14 +11,14 @@ import (
 type Control struct {
 	Vars   map[string]float64
 	Colors map[string]string
-	mu     sync.Mutex
+	mu     *sync.Mutex
 }
 
 func NewControl() Control {
 	return Control{
 		Vars:   make(map[string]float64),
 		Colors: make(map[string]string),
-		mu:     sync.Mutex{}}
+		mu:     &sync.Mutex{}}
 }
 
 func (c *Control) State() string {
