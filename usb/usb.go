@@ -1,10 +1,11 @@
 package usb
 
 import (
-	"github.com/drichelson/libusb"
-	"github.com/lucasb-eyer/go-colorful"
 	"log"
 	"math"
+
+	"github.com/drichelson/libusb"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 //Teensy:
@@ -33,7 +34,7 @@ func Initialize() {
 
 	_, deviceHandle, err = ctx.OpenDeviceWithVendorProduct(teensyVendorID, teensyProductID)
 	if err != nil {
-		log.Fatal("Error opening device")
+		log.Fatalf("Error opening device: %v", err)
 	}
 	showInfo(ctx, "Teensy", teensyVendorID, teensyProductID)
 	err = deviceHandle.ClaimInterface(1)
