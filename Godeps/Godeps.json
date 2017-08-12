@@ -1,0 +1,88 @@
+{
+	"ImportPath": "github.com/drichelson/ledicious",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v79",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/StefanSchroeder/Golang-Ellipsoid/ellipsoid",
+			"Rev": "8fa6ccb8ea661b7d37e95abcb5b30a3405f8ab7c"
+		},
+		{
+			"ImportPath": "github.com/Unknwon/com",
+			"Comment": "v1-12-g0db4a62",
+			"Rev": "0db4a625e949e956314d7d1adea9bf82384cc10c"
+		},
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.0",
+			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
+		},
+		{
+			"ImportPath": "github.com/drichelson/libusb",
+			"Rev": "8ad0351e841fafc0ee43cd12e5957d59e10692aa"
+		},
+		{
+			"ImportPath": "github.com/go-macaron/inject",
+			"Rev": "d8a0b8677191f4380287cfebd08e462217bac7ad"
+		},
+		{
+			"ImportPath": "github.com/golang/geo/r1",
+			"Rev": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"ImportPath": "github.com/golang/geo/r2",
+			"Rev": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"ImportPath": "github.com/golang/geo/r3",
+			"Rev": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"ImportPath": "github.com/golang/geo/s1",
+			"Rev": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"ImportPath": "github.com/golang/geo/s2",
+			"Rev": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"ImportPath": "github.com/launchdarkly/go-metrics",
+			"Rev": "e59290506785bb742873aebda236a05e0572f3ff"
+		},
+		{
+			"ImportPath": "github.com/lucasb-eyer/go-colorful",
+			"Rev": "c900de9dbbc73129068f5af6a823068fc5f2308c"
+		},
+		{
+			"ImportPath": "github.com/ojrac/opensimplex-go",
+			"Rev": "c0d2b8b324684d1e69e72eaf01f69ff700e3396a"
+		},
+		{
+			"ImportPath": "github.com/pmezard/go-difflib/difflib",
+			"Comment": "v1.0.0",
+			"Rev": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.1.4-27-g4d4bfba",
+			"Rev": "4d4bfba8f1d1027c4fdbe371823030df51419987"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/pbkdf2",
+			"Rev": "453249f01cfeb54c3d549ddb75ff152ca243f9d8"
+		},
+		{
+			"ImportPath": "gopkg.in/ini.v1",
+			"Comment": "v1.25.2",
+			"Rev": "74bdc99692c3408cb103221e38675ce8fda0a718"
+		},
+		{
+			"ImportPath": "gopkg.in/macaron.v1",
+			"Comment": "v1.2.1",
+			"Rev": "a325110f8b392bce3e5cdeb8c44bf98078ada3be"
+		}
+	]
+}
