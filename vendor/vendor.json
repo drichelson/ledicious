@@ -31,12 +31,6 @@
 			"revision": "8ad0351e841fafc0ee43cd12e5957d59e10692aa"
 		},
 		{
-			"checksumSHA1": "CNzVoNduZqMuR90qtw/zvHigr5c=",
-			"path": "github.com/drichelson/vu/synth",
-			"revision": "8d6427291fbf6a20e5dad62d0b6eef7027530dcc",
-			"revisionTime": "2017-07-06T13:43:18Z"
-		},
-		{
 			"checksumSHA1": "y0olVbiMQ6/UOa/eh52XYnies90=",
 			"path": "github.com/go-macaron/inject",
 			"revision": "d8a0b8677191f4380287cfebd08e462217bac7ad"
