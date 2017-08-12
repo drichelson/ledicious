@@ -1,0 +1,115 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "ghXMRHH7SQBQr28kX4LYXSY2P1o=",
+			"path": "github.com/StefanSchroeder/Golang-Ellipsoid/ellipsoid",
+			"revision": "8fa6ccb8ea661b7d37e95abcb5b30a3405f8ab7c"
+		},
+		{
+			"checksumSHA1": "7HXb3cry6luicWeJM9Uxwzfo9Rs=",
+			"comment": "v1-12-g0db4a62",
+			"path": "github.com/Unknwon/com",
+			"revision": "0db4a625e949e956314d7d1adea9bf82384cc10c"
+		},
+		{
+			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
+			"comment": "v1.1.0",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "346938d642f2ec3594ed81d874461961cd0faa76"
+		},
+		{
+			"checksumSHA1": "a2yC46a1qsJomgY6rb+FkTFiqmE=",
+			"comment": "v1.1.0",
+			"path": "github.com/davecgh/go-spew/spew/testdata",
+			"revision": "346938d642f2ec3594ed81d874461961cd0faa76"
+		},
+		{
+			"checksumSHA1": "/H0buhIvfv6YYuRksb5sgGeuOag=",
+			"path": "github.com/drichelson/libusb",
+			"revision": "8ad0351e841fafc0ee43cd12e5957d59e10692aa"
+		},
+		{
+			"checksumSHA1": "y0olVbiMQ6/UOa/eh52XYnies90=",
+			"path": "github.com/go-macaron/inject",
+			"revision": "d8a0b8677191f4380287cfebd08e462217bac7ad"
+		},
+		{
+			"checksumSHA1": "ewUc/AddabJQQ6xmSgRTY+T5cRg=",
+			"path": "github.com/golang/geo/r1",
+			"revision": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"checksumSHA1": "bhbWcOOLa1ovcW+EwRoX6YuxxIg=",
+			"path": "github.com/golang/geo/r2",
+			"revision": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"checksumSHA1": "CqqJGR84Ohab8ILmkrdZJCkDVJA=",
+			"path": "github.com/golang/geo/r3",
+			"revision": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"checksumSHA1": "qgDYNsWxk0RzqfwEisknCuRNfPQ=",
+			"path": "github.com/golang/geo/s1",
+			"revision": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"checksumSHA1": "qVQ7STJPMneEM4RhuJABImhgPMw=",
+			"path": "github.com/golang/geo/s2",
+			"revision": "c09b206546d1c7448bee892c56c21cc2bcd7e973"
+		},
+		{
+			"checksumSHA1": "PW0qfrJqs9aAhkVfQdIfGWWm/Ss=",
+			"path": "github.com/google/gousb",
+			"revision": "bc91dd3f2c71ca4aba28505b7aa2c811fc852d5c",
+			"revisionTime": "2017-07-21T19:15:49Z"
+		},
+		{
+			"checksumSHA1": "xnTkrxhMhzbduiUS1/SZJ9Mzo0s=",
+			"path": "github.com/launchdarkly/go-metrics",
+			"revision": "e59290506785bb742873aebda236a05e0572f3ff"
+		},
+		{
+			"checksumSHA1": "qQ/69O0QaXw/YCajx/sj+rgFzWw=",
+			"path": "github.com/lucasb-eyer/go-colorful",
+			"revision": "c900de9dbbc73129068f5af6a823068fc5f2308c"
+		},
+		{
+			"checksumSHA1": "A7xwIBzePMhAejFTqjOQhTHVz90=",
+			"path": "github.com/ojrac/opensimplex-go",
+			"revision": "c0d2b8b324684d1e69e72eaf01f69ff700e3396a"
+		},
+		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"comment": "v1.0.0",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
+			"checksumSHA1": "JXUVA1jky8ZX8w09p2t5KLs97Nc=",
+			"comment": "v1.1.4-27-g4d4bfba",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987"
+		},
+		{
+			"checksumSHA1": "1MGpGDQqnUoRpv7VEcQrXOBydXE=",
+			"path": "golang.org/x/crypto/pbkdf2",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8"
+		},
+		{
+			"checksumSHA1": "v5M2URDb0vJwelofRjiIsml0Jts=",
+			"comment": "v1.25.2",
+			"path": "gopkg.in/ini.v1",
+			"revision": "74bdc99692c3408cb103221e38675ce8fda0a718"
+		},
+		{
+			"checksumSHA1": "1HJvJZheB5NNl3i1R9zZJpiJ1G0=",
+			"comment": "v1.2.1",
+			"path": "gopkg.in/macaron.v1",
+			"revision": "a325110f8b392bce3e5cdeb8c44bf98078ada3be"
+		}
+	],
+	"rootPath": "github.com/drichelson/ledicious"
+}

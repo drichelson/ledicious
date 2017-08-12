@@ -1,10 +1,13 @@
 package usb
 
 import (
-	"github.com/drichelson/libusb"
-	"github.com/lucasb-eyer/go-colorful"
 	"log"
 	"math"
+
+	"github.com/drichelson/libusb"
+	"github.com/google/gousb"
+
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 //Teensy:
@@ -19,27 +22,47 @@ const (
 var (
 	ctx          *libusb.Context
 	deviceHandle *libusb.DeviceHandle
+	device       *gousb.Device
+	endpoint     *gousb.OutEndpoint
 )
 
 type msgID uint8
 
 func Initialize() {
-	ShowVersion()
+	//ShowVersion()
 	var err error
-	ctx, err = libusb.Init()
-	if err != nil {
-		log.Fatalf("error initializing libusb: %v", err)
-	}
+	ctx := gousb.NewContext()
+	//ctx, err = gousb.InInit()
+	//if err != nil {
+	//	log.Fatalf("error initializing libusb: %v", err)
+	//}
+	device, err = ctx.OpenDeviceWithVIDPID(teensyVendorID, teensyProductID)
 
-	_, deviceHandle, err = ctx.OpenDeviceWithVendorProduct(teensyVendorID, teensyProductID)
-	if err != nil {
-		log.Fatal("Error opening device")
+	//_, deviceHandle, err = ctx.OpenDeviceWithVendorProduct(teensyVendorID, teensyProductID)
+	if err != nil || device == nil {
+		log.Fatalf("Error opening device: %v", err)
 	}
-	showInfo(ctx, "Teensy", teensyVendorID, teensyProductID)
-	err = deviceHandle.ClaimInterface(1)
-	if err != nil {
-		log.Fatalf("Error claiming bulk transfer interface: %v", err)
+	log.Printf("Opened device: %s with description: %s", device.String(), device.Desc.String())
+	config, err := device.Config(1)
+	if err != nil || device == nil {
+		log.Fatalf("Error getting config from device: %v", err)
 	}
+	log.Printf("Config description: %s", config.Desc.String())
+
+	intf, err := config.Interface(1, 0)
+	if err != nil || device == nil {
+		log.Fatalf("Error getting default interface from device: %v", err)
+	}
+	endpoint, err = intf.OutEndpoint(3)
+	if err != nil || device == nil {
+		log.Fatalf("Error getting out endpoint from interface: %v", err)
+	}
+	log.Printf("Endpoint: %s", endpoint.Desc.String())
+	//showInfo(ctx, "Teensy", teensyVendorID, teensyProductID)
+	//err = deviceHandle.ClaimInterface(1)
+	//if err != nil {
+	//	log.Fatalf("Error claiming bulk transfer interface: %v", err)
+	//}
 }
 
 func normalizeBrightness(color colorful.Color) (r, g, b uint8) {
@@ -74,10 +97,10 @@ func Render(pixels []colorful.Color, brightness float64) {
 		data[3*i+3+2] = byte(b) //Blue
 	}
 
-	addr := libusb.EndpointAddress(byte(3))
+	//addr := libusb.EndpointAddress(byte(3))
 	//start := time.Now()
-
-	_, err := deviceHandle.BulkTransfer(addr, data, len(data), 20)
+	_, err := endpoint.Write(data)
+	//_, err := deviceHandle.BulkTransfer(addr, data, len(data), 20)
 	if err != nil {
 		log.Fatalf("Error bulk transferring: %v", err)
 	}
