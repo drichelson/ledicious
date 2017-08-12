@@ -1,7 +1,8 @@
 package animation
 
 import (
-	"fmt"
+	"log"
+
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
 )
@@ -33,9 +34,9 @@ func init() {
 		}
 	}
 
-	fmt.Printf("pixel count: %d\n", len(pixels.active))
-	fmt.Printf("row count: %d\n", len(rows))
-	fmt.Printf("col count: %d\n", len(cols))
+	log.Printf("pixel count: %d\n", len(pixels.active))
+	log.Printf("row count: %d\n", len(rows))
+	log.Printf("col count: %d\n", len(cols))
 }
 
 func point(lat, lon float64) s2.Point {

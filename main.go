@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -98,7 +97,7 @@ func getVar(ctx *macaron.Context, varName string) string {
 		return "not a number!"
 	}
 	control.SetVar(varName, float64(newVal)/1000.0)
-	fmt.Printf("new value: %s %d\n", varName, newVal)
+	//fmt.Printf("new value: %s %d\n", varName, newVal)
 	log.Println(control.State())
 	return "{\"state\": \"" + newValString + "\"}"
 }
@@ -110,7 +109,7 @@ func getColor(ctx *macaron.Context, varName string) string {
 		return "{\"state\": \"" + control.GetColorHex(varName) + "\"}"
 	}
 	control.SetColorHex(varName, newVal)
-	fmt.Printf("new color: %s %s\n", varName, newVal)
+	//fmt.Printf("new color: %s %s\n", varName, newVal)
 	log.Println(control.State())
 	return "{\"state\": \"" + newVal + "\"}"
 }

@@ -2,11 +2,13 @@ package animation
 
 import (
 	"fmt"
+	"log"
+	"math/rand"
+	"time"
+
 	"github.com/drichelson/ledicious/usb"
 	"github.com/golang/geo/s2"
 	"github.com/lucasb-eyer/go-colorful"
-	"math/rand"
-	"time"
 )
 
 const (
@@ -69,7 +71,7 @@ func Start(control Control) {
 		frameCount++
 		if frameCount%1000 == 0 {
 			newCheckPointTime := time.Now()
-			fmt.Printf("Avg FPS for past 1000 frames: %v\n", 1000.0/time.Since(checkPointTime).Seconds())
+			log.Printf("Avg FPS for past 1000 frames: %v\n", 1000.0/time.Since(checkPointTime).Seconds())
 			checkPointTime = newCheckPointTime
 		}
 	}

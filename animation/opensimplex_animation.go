@@ -1,9 +1,10 @@
 package animation
 
 import (
-	"fmt"
 	"math"
 	"time"
+
+	"log"
 
 	"github.com/launchdarkly/go-metrics"
 	"github.com/lucasb-eyer/go-colorful"
@@ -67,7 +68,7 @@ func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
 	if false && frameCount%1000 == 0 {
 		go func() {
 			snapshot := a.histo.Snapshot()
-			fmt.Printf("Normalized histo: min: %.3f P10: %.3f P20: %.3f P30: %.3f P40: %.3f P50: %.3f P60: %.3f P70: %.3f P80: %.3f P90: %.3f max: %.3f\n",
+			log.Printf("Normalized histo: min: %.3f P10: %.3f P20: %.3f P30: %.3f P40: %.3f P50: %.3f P60: %.3f P70: %.3f P80: %.3f P90: %.3f max: %.3f\n",
 				float64(snapshot.Min())/1000.0,
 				snapshot.Percentile(0.1)/1000.0,
 				snapshot.Percentile(0.2)/1000.0,
