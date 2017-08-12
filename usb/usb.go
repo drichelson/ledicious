@@ -91,7 +91,7 @@ func Render(pixels []colorful.Color, brightness float64) {
 
 	_, err := deviceHandle.BulkTransfer(addr, data, len(data), 20)
 	if err != nil {
-		log.Fatalf("Error bulk transferring: %v", err)
+		log.Printf("Error bulk transferring: %v", err)
 	}
 	//log.Printf("Usb transfer took: %v\n", time.Since(start))
 
