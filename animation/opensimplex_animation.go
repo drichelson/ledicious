@@ -2,11 +2,12 @@ package animation
 
 import (
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/launchdarkly/go-metrics"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/ojrac/opensimplex-go"
-	"math"
-	"time"
 )
 
 type OpenSimplexAnimation struct {
@@ -63,7 +64,7 @@ func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
 		p.color = &c
 		//fmt.Printf("%v\n", noiseVal)
 	}
-	if frameCount%1000 == 0 {
+	if false && frameCount%1000 == 0 {
 		go func() {
 			snapshot := a.histo.Snapshot()
 			fmt.Printf("Normalized histo: min: %.3f P10: %.3f P20: %.3f P30: %.3f P40: %.3f P50: %.3f P60: %.3f P70: %.3f P80: %.3f P90: %.3f max: %.3f\n",
