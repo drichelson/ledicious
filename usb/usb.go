@@ -37,6 +37,17 @@ func Initialize() {
 		log.Fatalf("Error opening device: %v", err)
 	}
 	showInfo(ctx, "Teensy", teensyVendorID, teensyProductID)
+	kernelDriverActive, err := deviceHandle.KernelDriverActive(1)
+	if err != nil {
+		//deviceHandle.SetAutoDetachKernelDriver()
+		log.Fatalf("Error getting kernel driver active state: %v", err)
+	}
+	if kernelDriverActive {
+		err = deviceHandle.DetachKernelDriver(1)
+		if err != nil {
+			log.Fatalf("Error detaching kernel driver: %v", err)
+		}
+	}
 	err = deviceHandle.ClaimInterface(1)
 	if err != nil {
 		log.Fatalf("Error claiming bulk transfer interface: %v", err)
