@@ -6,6 +6,8 @@ import (
 
 	"log"
 
+	"sync"
+
 	"github.com/launchdarkly/go-metrics"
 	"github.com/lucasb-eyer/go-colorful"
 	"github.com/ojrac/opensimplex-go"
@@ -54,17 +56,24 @@ func (a *OpenSimplexAnimation) syncControl() {
 
 func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
 	a.syncControl()
-	for _, p := range pixels.active {
-		noiseVal := a.noise.Eval4(p.x, p.y, p.z, elapsed.Seconds()/10.0)
-		a.min = math.Min(a.min, noiseVal)
-		a.max = math.Max(a.max, noiseVal)
+	wg := sync.WaitGroup{}
 
-		noiseValNormalized := a.normalizeNoiseValue(noiseVal)
-		a.histo.Update(int64(noiseValNormalized * 1000.0))
-		c := a.gradient.GetInterpolatedColorFor(noiseValNormalized)
-		p.color = &c
-		//fmt.Printf("%v\n", noiseVal)
+	for _, p := range pixels.active {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			noiseVal := a.noise.Eval4(p.x, p.y, p.z, elapsed.Seconds()/10.0)
+			a.min = math.Min(a.min, noiseVal)
+			a.max = math.Max(a.max, noiseVal)
+
+			noiseValNormalized := a.normalizeNoiseValue(noiseVal)
+			a.histo.Update(int64(noiseValNormalized * 1000.0))
+			c := a.gradient.GetInterpolatedColorFor(noiseValNormalized)
+			p.color = &c
+			//fmt.Printf("%v\n", noiseVal)
+		}()
 	}
+	wg.Wait()
 	if false && frameCount%1000 == 0 {
 		go func() {
 			snapshot := a.histo.Snapshot()
