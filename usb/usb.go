@@ -37,10 +37,10 @@ func Initialize() {
 		log.Fatalf("Error opening device: %v", err)
 	}
 	showInfo(ctx, "Teensy", teensyVendorID, teensyProductID)
-	//err = deviceHandle.ClaimInterface(1)
-	//if err != nil {
-	//	log.Fatalf("Error claiming bulk transfer interface: %v", err)
-	//}
+	err = deviceHandle.ClaimInterface(1)
+	if err != nil {
+		log.Fatalf("Error claiming bulk transfer interface: %v", err)
+	}
 }
 
 func normalizeBrightness(color colorful.Color) (r, g, b uint8) {
