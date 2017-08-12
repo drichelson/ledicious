@@ -2,11 +2,12 @@ package animation
 
 import (
 	"fmt"
-	"github.com/golang/geo/s2"
-	"github.com/lucasb-eyer/go-colorful"
 	"math/rand"
 	"sync"
 	"time"
+
+	"github.com/golang/geo/s2"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 const (
@@ -62,15 +63,15 @@ func newMover() mover {
 		tail[i] = cap
 	}
 	return mover{
-		cap:           cap,
-		startPoint:    cap.Center(),
-		speed:         float64(rand.Intn(40) + 50),
-		color:         colorful.WarmColor(),
-		bearing:       float64(rand.Intn(3600)) / 10.0,
-		totalDistance: float64(rand.Intn(100000) + 20000000000),
-		tailLength:    tailLength,
-		tail:          tail,
-		done:          false,
+		cap:        cap,
+		startPoint: cap.Center(),
+		speed:      float64(rand.Intn(40) + 50),
+		color:      colorful.WarmColor(),
+		bearing:    float64(rand.Intn(3600)) / 10.0,
+		//totalDistance: float64(rand.Intn(100000) + int64(20000000000)),
+		tailLength: tailLength,
+		tail:       tail,
+		done:       false,
 	}
 }
 
