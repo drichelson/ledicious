@@ -57,8 +57,8 @@ func (a *OpenSimplexAnimation) syncControl() {
 func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
 	a.syncControl()
 	wg := sync.WaitGroup{}
-
-	for _, p := range pixels.active {
+	for _, outerP := range pixels.active {
+		p := outerP
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
