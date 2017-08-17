@@ -25,46 +25,85 @@
 <script type=text/javascript>
 
     function updateVar(varName) {
-        $.getJSON(url = '/var' + varName, success = function (data, status, xhr) {
+        $.getJSON(url = '/' + varName, success = function (data, status, xhr) {
             $("#slider-" + varName).val(data.state).slider('refresh');
+            updateQueryParams(varName, data.state)
         });
     }
 
+    function getQueryParams() {
+        var queryParamString = document.location.search;
+        console.log(queryParamString);
+        var queryParams = {};
+        if (queryParamString && queryParamString.length > 0) {
+            queryParamString.substr(1).split("&").forEach(function (pairString) {
+                var pair = pairString.split("=");
+                queryParams[pair[0]] = pair[1]
+            });
+            console.log(queryParams);
+        }
+        return queryParams
+    }
+
+    function updateQueryParams(key, value) {
+        var queryParams = getQueryParams();
+        queryParams[key] = value;
+        var paramsString = $.param(queryParams);
+        console.log("param string: " + paramsString);
+        history.pushState({}, "", window.location.pathname + "?" + paramsString);
+//        document.location.search = $.param(queryParams);
+    }
+
     $(document).on("pagecreate", "#page1", function () {
-        updateVar('A');
-        updateVar('B');
-        updateVar('C');
-        updateVar('D');
+        var queryParams = getQueryParams();
+        $.each(queryParams, function (k, v) {
+            $.getJSON('/' + k, {
+                state: v
+            });
+        });
+
+        updateVar('varA');
+        updateVar('varB');
+        updateVar('varC');
+        updateVar('varD');
         $(
             function () {
-                $('#slider-A').change(function () {
+                $('#slider-varA').change(function () {
+                    var state = $('#slider-varA').val();
                     $.getJSON('/varA', {
-                        state: $('#slider-A').val()
+                        state: state
                     });
+                    updateQueryParams('varA', state)
                 });
             });
         $(
             function () {
-                $('#slider-B').change(function () {
+                $('#slider-varB').change(function () {
+                    var state = $('#slider-varB').val();
                     $.getJSON('/varB', {
-                        state: $('#slider-B').val()
+                        state: state
                     });
+                    updateQueryParams('varB', state)
                 });
             });
         $(
             function () {
-                $('#slider-C').change(function () {
+                $('#slider-varC').change(function () {
+                    var state = $('#slider-varC').val();
                     $.getJSON('/varC', {
-                        state: $('#slider-C').val()
+                        state: state
                     });
+                    updateQueryParams('varC', state)
                 });
             });
         $(
             function () {
-                $('#slider-D').change(function () {
+                $('#slider-varD').change(function () {
+                    var state = $('#slider-varD').val();
                     $.getJSON('/varD', {
-                        state: $('#slider-D').val()
+                        state: state
                     });
+                    updateQueryParams('varD', state)
                 });
             });
 
@@ -122,8 +161,7 @@
         $(
             function () {
                 $('#wow').click(function () {
-                    $.getJSON('/wow', {
-                    });
+                    $.getJSON('/wow', {});
                 });
             });
     });
@@ -134,20 +172,20 @@
     </div>
 
     <div data-role="ui-content">
-        <label for="slider-A">A</label>
-        <input type="range" name="slider-A" id="slider-A" min="0" max="1000" step="1" data-highlight="true"
+        <label for="slider-varA">A</label>
+        <input type="range" name="slider-varA" id="slider-varA" min="0" max="1000" step="1" data-highlight="true"
                required="required"/>
 
-        <label for="slider-B">B</label>
-        <input type="range" name="slider-B" id="slider-B" min="0" max="1000" step="1" data-highlight="true"
+        <label for="slider-varB">B</label>
+        <input type="range" name="slider-varB" id="slider-varB" min="0" max="1000" step="1" data-highlight="true"
                required="required"/>
 
-        <label for="slider-C">C</label>
-        <input type="range" name="slider-C" id="slider-C" min="0" max="1000" step="1" data-highlight="true"
+        <label for="slider-varC">C</label>
+        <input type="range" name="slider-varC" id="slider-varC" min="0" max="1000" step="1" data-highlight="true"
                required="required"/>
 
-        <label for="slider-D">D</label>
-        <input type="range" name="slider-C" id="slider-D" min="0" max="1000" step="1" data-highlight="true"
+        <label for="slider-varD">D</label>
+        <input type="range" name="slider-varC" id="slider-varD" min="0" max="1000" step="1" data-highlight="true"
                required="required"/>
 
     </div>
