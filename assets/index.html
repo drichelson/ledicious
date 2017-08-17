@@ -165,7 +165,7 @@
         $(
             function () {
                 $('#wow').click(function () {
-                    $.getJSON('/wow', {});
+                    $.getJSON('/wow' + document.location.search, {});
                 });
             });
     });

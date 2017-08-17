@@ -49,7 +49,7 @@ func main() {
 		}))
 
 	m.Get("/wow", func(ctx *macaron.Context) string {
-		wowLog.Println(control.State())
+		wowLog.Println(ctx.Req.URL.RawQuery)
 		return ""
 	})
 
