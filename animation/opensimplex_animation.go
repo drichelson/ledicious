@@ -33,10 +33,10 @@ func NewOpenSimplexAnimation(control Control) *OpenSimplexAnimation {
 	control.SetColor("C", colorC)
 	control.SetColor("D", colorD)
 
-	control.SetVar("A", 0.0)
-	control.SetVar("B", 0.1)
-	control.SetVar("C", 0.9)
-	control.SetVar("D", 1.0)
+	control.SetVar("varA", 0.0)
+	control.SetVar("varB", 0.1)
+	control.SetVar("varC", 0.9)
+	control.SetVar("varD", 1.0)
 
 	return &OpenSimplexAnimation{
 		control: control,
@@ -47,10 +47,10 @@ func NewOpenSimplexAnimation(control Control) *OpenSimplexAnimation {
 
 func (a *OpenSimplexAnimation) syncControl() {
 	a.gradient = GradientTable{
-		{a.control.GetColor("A"), a.control.GetVar("A")},
-		{a.control.GetColor("B"), a.control.GetVar("B")},
-		{a.control.GetColor("C"), a.control.GetVar("C")},
-		{a.control.GetColor("D"), a.control.GetVar("D")},
+		{a.control.GetColor("A"), a.control.GetVar("varA")},
+		{a.control.GetColor("B"), a.control.GetVar("varB")},
+		{a.control.GetColor("C"), a.control.GetVar("varC")},
+		{a.control.GetColor("D"), a.control.GetVar("varD")},
 	}
 }
 

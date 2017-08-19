@@ -3,9 +3,6 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="jquery.mobile.min.css"/>
     <link rel="stylesheet" href="colorpicker/css/colorpicker.css" type="text/css"/>
-
-
-    <!--This was on 1.9.x, so maybe switch it back if needed-->
     <script src="jquery-1.9.1.min.js"></script>
     <script src="jquery.mobile.min.js"></script>
     <script type="text/javascript" src="colorpicker/js/colorpicker.js"></script>
@@ -23,7 +20,6 @@
 </style>
 
 <script type=text/javascript>
-
     function updateVar(varName) {
         $.getJSON(url = '/' + varName, success = function (data, status, xhr) {
             $("#slider-" + varName).val(data.state).slider('refresh');
@@ -33,14 +29,14 @@
 
     function getQueryParams() {
         var queryParamString = document.location.search;
-        console.log(queryParamString);
+//        console.log(queryParamString);
         var queryParams = {};
         if (queryParamString && queryParamString.length > 0) {
             queryParamString.substr(1).split("&").forEach(function (pairString) {
                 var pair = pairString.split("=");
                 queryParams[pair[0]] = pair[1]
             });
-            console.log(queryParams);
+//            console.log(queryParams);
         }
         return queryParams
     }
@@ -49,7 +45,7 @@
         var queryParams = getQueryParams();
         queryParams[key] = value;
         var paramsString = $.param(queryParams);
-        console.log("param string: " + paramsString);
+//        console.log("param string: " + paramsString);
         history.pushState({}, "", window.location.pathname + "?" + paramsString);
     }
 
@@ -61,10 +57,32 @@
             });
         });
 
+        updateVar('speed');
+        updateVar('brightness');
         updateVar('varA');
         updateVar('varB');
         updateVar('varC');
         updateVar('varD');
+        $(
+            function () {
+                $('#slider-brightness').change(function () {
+                    var state = $('#slider-brightness').val();
+                    $.getJSON('/brightness', {
+                        state: state
+                    });
+                    updateQueryParams('brightness', state)
+                });
+            });
+        $(
+            function () {
+                $('#slider-speed').change(function () {
+                    var state = $('#slider-speed').val();
+                    $.getJSON('/speed', {
+                        state: state
+                    });
+                    updateQueryParams('speed', state)
+                });
+            });
         $(
             function () {
                 $('#slider-varA').change(function () {
@@ -176,6 +194,14 @@
     </div>
 
     <div data-role="ui-content">
+        <label for="slider-speed">Speed</label>
+        <input type="range" name="slider-speed" id="slider-speed" min="0" max="1000" step="1" data-highlight="true"
+               required="required"/>
+
+        <label for="slider-brightness">Brightness</label>
+        <input type="range" name="slider-brightness" id="slider-brightness" min="0" max="1000" step="1" data-highlight="true"
+               required="required"/>
+
         <label for="slider-varA">A</label>
         <input type="range" name="slider-varA" id="slider-varA" min="0" max="1000" step="1" data-highlight="true"
                required="required"/>

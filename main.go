@@ -27,10 +27,10 @@ func main() {
 	defer f.Close()
 	wowLog.SetOutput(f)
 
-	control.SetVar("A", 0.5)
-	control.SetVar("B", 0.5)
-	control.SetVar("C", 0.5)
-	control.SetVar("D", 0.5)
+	control.SetVar("varA", 0.5)
+	control.SetVar("varB", 0.5)
+	control.SetVar("varC", 0.5)
+	control.SetVar("varD", 0.5)
 
 	control.SetColorHex("A", "ff00FF")
 	control.SetColorHex("B", "ff00FF")
@@ -53,17 +53,23 @@ func main() {
 		return ""
 	})
 
+	m.Get("/speed", func(ctx *macaron.Context) string {
+		return getVar(ctx, "speed")
+	})
+	m.Get("/brightness", func(ctx *macaron.Context) string {
+		return getVar(ctx, "brightness")
+	})
 	m.Get("/varA", func(ctx *macaron.Context) string {
-		return getVar(ctx, "A")
+		return getVar(ctx, "varA")
 	})
 	m.Get("/varB", func(ctx *macaron.Context) string {
-		return getVar(ctx, "B")
+		return getVar(ctx, "varB")
 	})
 	m.Get("/varC", func(ctx *macaron.Context) string {
-		return getVar(ctx, "C")
+		return getVar(ctx, "varC")
 	})
 	m.Get("/varD", func(ctx *macaron.Context) string {
-		return getVar(ctx, "D")
+		return getVar(ctx, "varD")
 	})
 
 	m.Get("/colorA", func(ctx *macaron.Context) string {
