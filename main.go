@@ -31,6 +31,8 @@ func main() {
 	control.SetVar("varB", 0.5)
 	control.SetVar("varC", 0.5)
 	control.SetVar("varD", 0.5)
+	control.SetVar("brightness", 1.0)
+	control.SetVar("speed", 0.3)
 
 	control.SetColorHex("A", "ff00FF")
 	control.SetColorHex("B", "ff00FF")
