@@ -1,7 +1,6 @@
 package animation
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -20,7 +19,7 @@ const (
 
 var (
 	pixels   Pixels
-	renderCh = make(chan []colorful.Color, 1)
+	renderCh = make(chan usb.RenderPackage, 1)
 	rows     = make([][]*Pixel, RowCount)
 	cols     = make([][]*Pixel, ColumnCount)
 )
@@ -28,6 +27,7 @@ var (
 type Animation interface {
 	frame(elapsed time.Duration, frameCount int)
 }
+
 type Pixels struct {
 	all    []*Pixel
 	active []*Pixel
@@ -53,7 +53,7 @@ func Start(control Control) {
 
 	go func() {
 		for {
-			usb.Render(<-renderCh, GlobalBrightness)
+			usb.Render(<-renderCh)
 		}
 	}()
 
@@ -71,7 +71,7 @@ func Start(control Control) {
 
 	for {
 		a.frame(time.Since(startTime), frameCount)
-		pixels.render()
+		pixels.render(control.GetVar("brightness"))
 		pixels.reset()
 		frameCount++
 		if frameCount%1000 == 0 {
@@ -92,38 +92,39 @@ func (p *Pixels) reset() {
 	}
 }
 
-func (p *Pixels) render() {
+func (p *Pixels) render(brightness float64) {
 	colors := make([]colorful.Color, len(pixels.all))
 	for i, p := range pixels.all {
 		colors[i] = *p.color
 	}
-	renderCh <- colors
+	renderCh <- usb.RenderPackage{Pixels: colors, Brightness: brightness}
 }
 
-func test() {
-	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
-		for i, row := range rows {
-			fmt.Printf("row: %d\n", i)
-			pixels.reset()
-			for _, pixel := range row {
-				pixel.color = &c
-			}
-			pixels.render()
-			time.Sleep(50 * time.Millisecond)
-		}
-	}
-	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
-		for i, col := range cols {
-			fmt.Printf("column: %d\n", i)
-			pixels.reset()
-			for _, pixel := range col {
-				pixel.color = &c
-			}
-			pixels.render()
-			time.Sleep(50 * time.Millisecond)
-		}
-	}
-	pixels.reset()
-	pixels.render()
-	time.Sleep(50 * time.Millisecond)
-}
+//
+//func test() {
+//	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
+//		for i, row := range rows {
+//			fmt.Printf("row: %d\n", i)
+//			pixels.reset()
+//			for _, pixel := range row {
+//				pixel.color = &c
+//			}
+//			pixels.render()
+//			time.Sleep(50 * time.Millisecond)
+//		}
+//	}
+//	for _, c := range []colorful.Color{{R: 1.0}, {G: 1.0}, {B: 1.0}} {
+//		for i, col := range cols {
+//			fmt.Printf("column: %d\n", i)
+//			pixels.reset()
+//			for _, pixel := range col {
+//				pixel.color = &c
+//			}
+//			pixels.render()
+//			time.Sleep(50 * time.Millisecond)
+//		}
+//	}
+//	pixels.reset()
+//	pixels.render()
+//	time.Sleep(50 * time.Millisecond)
+//}

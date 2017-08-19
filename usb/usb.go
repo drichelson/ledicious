@@ -24,6 +24,11 @@ var (
 
 type msgID uint8
 
+type RenderPackage struct {
+	Pixels     []colorful.Color
+	Brightness float64
+}
+
 func Initialize() error {
 	ShowVersion()
 	var err error
@@ -69,8 +74,9 @@ func normalize(in float64) uint8 {
 	return uint8(255.0 * math.Pow(in, 1.08))
 }
 
-func Render(pixels []colorful.Color, brightness float64) {
+func Render(renderPkg RenderPackage) {
 	//fmt.Printf("color count: %d\n", len(pixels))
+	pixels := renderPkg.Pixels
 	data := make([]byte, len(pixels)*3+3)
 	data[0] = '*'
 	data[1] = 238
@@ -82,10 +88,10 @@ func Render(pixels []colorful.Color, brightness float64) {
 		//} else {
 		//	fmt.Printf("%+v", *c)
 		//}
-		//c.R = c.R * brightness
-		//c.G = c.G * brightness
-		//c.B = c.B * brightness
-		//c.RGB255()
+		c.R = c.R * renderPkg.Brightness
+		c.G = c.G * renderPkg.Brightness
+		c.B = c.B * renderPkg.Brightness
+		c.RGB255()
 		r, g, b := normalizeBrightness(c)
 		data[3*i+3] = byte(r)   //Red
 		data[3*i+3+1] = byte(g) //Green
