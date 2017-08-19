@@ -15,6 +15,7 @@ import (
 
 type OpenSimplexAnimation struct {
 	control  Control
+	speed    float64
 	noise    *opensimplex.Noise
 	gradient GradientTable
 	histo    metrics.Histogram
@@ -52,6 +53,7 @@ func (a *OpenSimplexAnimation) syncControl() {
 		{a.control.GetColor("C"), a.control.GetVar("varC")},
 		{a.control.GetColor("D"), a.control.GetVar("varD")},
 	}
+	a.speed = a.control.GetVar("speed")
 }
 
 func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
@@ -62,7 +64,7 @@ func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			noiseVal := a.noise.Eval4(p.x, p.y, p.z, elapsed.Seconds()/10.0)
+			noiseVal := a.noise.Eval4(p.x, p.y, p.z, (a.speed/2.0)*elapsed.Seconds())
 			a.min = math.Min(a.min, noiseVal)
 			a.max = math.Max(a.max, noiseVal)
 
