@@ -24,34 +24,40 @@ var (
 
 type msgID uint8
 
-func Initialize() {
+func Initialize() error {
 	ShowVersion()
 	var err error
 	ctx, err = libusb.Init()
 	if err != nil {
-		log.Fatalf("error initializing libusb: %v", err)
+		log.Printf("Error initializing libusb: %v", err)
+		return err
 	}
 
 	_, deviceHandle, err = ctx.OpenDeviceWithVendorProduct(teensyVendorID, teensyProductID)
 	if err != nil {
-		log.Fatalf("Error opening device: %v", err)
+		log.Printf("Error opening device: %v", err)
+		return err
 	}
 	showInfo(ctx, "Teensy", teensyVendorID, teensyProductID)
 	kernelDriverActive, err := deviceHandle.KernelDriverActive(1)
 	if err != nil {
 		//deviceHandle.SetAutoDetachKernelDriver()
-		log.Fatalf("Error getting kernel driver active state: %v", err)
+		log.Printf("Error getting kernel driver active state: %v", err)
+		return err
 	}
 	if kernelDriverActive {
 		err = deviceHandle.DetachKernelDriver(1)
 		if err != nil {
-			log.Fatalf("Error detaching kernel driver: %v", err)
+			log.Printf("Error detaching kernel driver: %v", err)
+			return err
 		}
 	}
 	err = deviceHandle.ClaimInterface(1)
 	if err != nil {
-		log.Fatalf("Error claiming bulk transfer interface: %v", err)
+		log.Printf("Error claiming bulk transfer interface: %v", err)
+		return err
 	}
+	return nil
 }
 
 func normalizeBrightness(color colorful.Color) (r, g, b uint8) {

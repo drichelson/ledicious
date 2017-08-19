@@ -45,7 +45,12 @@ type Pixel struct {
 }
 
 func Start(control Control) {
-	usb.Initialize()
+	usbErr := usb.Initialize()
+	for usbErr != nil {
+		time.Sleep(1 * time.Second)
+		usbErr = usb.Initialize()
+	}
+
 	go func() {
 		for {
 			usb.Render(<-renderCh, GlobalBrightness)
