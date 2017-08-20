@@ -106,7 +106,7 @@ func getVar(ctx *macaron.Context, varName string) string {
 	}
 	control.SetVar(varName, float64(newVal)/1000.0)
 	//fmt.Printf("new value: %s %d\n", varName, newVal)
-	log.Println(control.State())
+	//log.Println(control.State())
 	return "{\"state\": \"" + newValString + "\"}"
 }
 
@@ -118,6 +118,6 @@ func getColor(ctx *macaron.Context, varName string) string {
 	}
 	control.SetColorHex(varName, newVal)
 	//fmt.Printf("new color: %s %s\n", varName, newVal)
-	log.Println(control.State())
+	//log.Println(control.State())
 	return "{\"state\": \"" + newVal + "\"}"
 }
