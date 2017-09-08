@@ -64,7 +64,7 @@ func (a *OpenSimplexAnimation) frame(elapsed time.Duration, frameCount int) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			noiseVal := a.noise.Eval4(p.x, p.y, p.z, (a.speed/2.0)*elapsed.Seconds())
+			noiseVal := a.noise.Eval4(p.x, p.y, p.z, (a.speed)*elapsed.Seconds())
 			a.min = math.Min(a.min, noiseVal)
 			a.max = math.Max(a.max, noiseVal)
 
