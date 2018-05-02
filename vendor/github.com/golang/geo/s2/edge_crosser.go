@@ -1,18 +1,16 @@
-/*
-Copyright 2017 Google Inc. All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright 2017 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package s2
 
@@ -191,22 +189,18 @@ func (e *EdgeCrosser) crossingSign(d Point, bda Direction) Crossing {
 		return DoNotCross
 	}
 
-	// Otherwise, eliminate the cases where any two vertices are equal. (These
-	// cases could be handled in the code below, but since ExpensiveSign lives
-	// up to its name we would rather avoid calling it if possible.)
-	//
-	// These are the cases where two vertices from different edges are equal.
+	// Otherwise, eliminate the cases where two vertices from different edges are
+	// equal. (These cases could be handled in the code below, but we would rather
+	// avoid calling ExpensiveSign if possible.)
 	if e.a == e.c || e.a == d || e.b == e.c || e.b == d {
 		return MaybeCross
 	}
 
-	// These are the cases where an input edge is degenerate. (Note that in
+	// Eliminate the cases where an input edge is degenerate. (Note that in
 	// most cases, if CD is degenerate then this method is not even called
-	// because acb and bda have different signs. That's why this method is
-	// documented to return either MaybeCross or DoNotCross when an input
-	// edge is degenerate.)
+	// because acb and bda have different signs.)
 	if e.a == e.b || e.c == d {
-		return MaybeCross
+		return DoNotCross
 	}
 
 	// Otherwise it's time to break out the big guns.
