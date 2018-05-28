@@ -42,18 +42,25 @@ type Pixel struct {
 	Point    s2.Point
 	color    *colorful.Color
 	disabled bool
+	Lat      float64
+	Lon      float64
 }
 
 func Start(control Control) {
-	usbErr := usb.Initialize()
-	for usbErr != nil {
-		time.Sleep(1 * time.Second)
-		usbErr = usb.Initialize()
-	}
 
 	go func() {
 		for {
-			usb.Render(<-renderCh)
+			usbErr := usb.Initialize()
+			for usbErr != nil {
+				time.Sleep(1 * time.Second)
+				usbErr = usb.Initialize()
+			}
+			for {
+				renderErr := usb.Render(<-renderCh)
+				if renderErr != nil {
+					break
+				}
+			}
 		}
 	}()
 
@@ -63,6 +70,7 @@ func Start(control Control) {
 	//a = NewVuSimplexAnimation(control)
 	//a = NewGeoAnimation(control)
 	//a = NewGeoAnimation2(control)
+	//a = NewGeojsonAnimation(control)
 	//a = NewBrightnessTestAnimation(control)
 	//a = NewGradientTestAnimation(control)
 	startTime := time.Now()

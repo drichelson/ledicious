@@ -6,6 +6,7 @@ import (
 
 	"github.com/drichelson/libusb"
 	"github.com/lucasb-eyer/go-colorful"
+	"fmt"
 )
 
 //Teensy:
@@ -70,11 +71,11 @@ func normalizeBrightness(color colorful.Color) (r, g, b uint8) {
 }
 
 func normalize(in float64) uint8 {
-	//TODO: use a lookup table instead? check performance on arm before
+	//TODO: use a lookup table instead? check performance on arm before/after
 	return uint8(255.0 * math.Pow(in, 1.08))
 }
 
-func Render(renderPkg RenderPackage) {
+func Render(renderPkg RenderPackage) error {
 	//fmt.Printf("color count: %d\n", len(pixels))
 	pixels := renderPkg.Pixels
 	data := make([]byte, len(pixels)*3+3)
@@ -103,10 +104,10 @@ func Render(renderPkg RenderPackage) {
 
 	_, err := deviceHandle.BulkTransfer(addr, data, len(data), 20)
 	if err != nil {
-		log.Printf("Error bulk transferring: %v", err)
+		return fmt.Errorf("error bulk transferring: %v", err)
 	}
 	//log.Printf("Usb transfer took: %v\n", time.Since(start))
-
+	return nil
 }
 
 func showDevices() {
