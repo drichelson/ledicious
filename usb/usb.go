@@ -14,16 +14,13 @@ import (
 
 const (
 	teensyVendorID  = 5824
-	teensyProductID = 1155
-	minimumVisible  = .007843137
+	teensyProductID = 1155 // This seems to work with both Teensy 3.1 and 3.2
 )
 
 var (
 	ctx          *libusb.Context
 	deviceHandle *libusb.DeviceHandle
 )
-
-type msgID uint8
 
 type RenderPackage struct {
 	Pixels     []colorful.Color
@@ -47,7 +44,6 @@ func Initialize() error {
 	showInfo(ctx, "Teensy", teensyVendorID, teensyProductID)
 	kernelDriverActive, err := deviceHandle.KernelDriverActive(1)
 	if err != nil {
-		//deviceHandle.SetAutoDetachKernelDriver()
 		log.Printf("Error getting kernel driver active state: %v", err)
 		return err
 	}
@@ -70,6 +66,7 @@ func normalizeBrightness(color colorful.Color) (r, g, b uint8) {
 	return normalize(color.R), normalize(color.G), normalize(color.B)
 }
 
+//attempt to make brightness scale more linear
 func normalize(in float64) uint8 {
 	//TODO: use a lookup table instead? check performance on arm before/after
 	return uint8(255.0 * math.Pow(in, 1.08))
@@ -84,11 +81,6 @@ func Render(renderPkg RenderPackage) error {
 	data[2] = 2
 
 	for i, c := range pixels {
-		//if c == nil {
-		//	c = &colorful.Color{} //is this black?
-		//} else {
-		//	fmt.Printf("%+v", *c)
-		//}
 		c.R = c.R * renderPkg.Brightness
 		c.G = c.G * renderPkg.Brightness
 		c.B = c.B * renderPkg.Brightness
@@ -108,35 +100,6 @@ func Render(renderPkg RenderPackage) error {
 	}
 	//log.Printf("Usb transfer took: %v\n", time.Since(start))
 	return nil
-}
-
-func showDevices() {
-	devices, err := ctx.GetDeviceList()
-	if err != nil {
-		log.Fatalf("Error getting device list: %v", err)
-	}
-
-	for _, usbDevice := range devices {
-		deviceAddress, _ := usbDevice.GetDeviceAddress()
-		deviceSpeed, _ := usbDevice.GetDeviceSpeed()
-		busNumber, _ := usbDevice.GetBusNumber()
-		usbDeviceDescriptor, _ := usbDevice.GetDeviceDescriptor()
-		log.Printf("Device address %v is on bus number %v\n=> %v\n",
-			deviceAddress,
-			busNumber,
-			deviceSpeed,
-		)
-		log.Printf("=> Vendor: %v \tProduct: %v\n=> Class: %v\n",
-			usbDeviceDescriptor.VendorID,
-			usbDeviceDescriptor.ProductID,
-			usbDeviceDescriptor.DeviceClass,
-		)
-		log.Printf("=> USB: %v\tMax Packet 0: %v\tSN Index: %v\n",
-			usbDeviceDescriptor.USBSpecification,
-			usbDeviceDescriptor.MaxPacketSize0,
-			usbDeviceDescriptor.SerialNumberIndex,
-		)
-	}
 }
 
 func ShowVersion() {

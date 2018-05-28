@@ -50,16 +50,25 @@
   revision = "eaf6f21d2060d08672d5a81689ac78134c871cdf"
 
 [[projects]]
-  branch = "master"
   name = "github.com/lucasb-eyer/go-colorful"
   packages = ["."]
-  revision = "231272389856c976b7500c4fffcc52ddf06ff4eb"
+  revision = "345fbb3dbcdb252d9985ee899a84963c0fa24c82"
+  version = "v1.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/ojrac/opensimplex-go"
   packages = ["."]
   revision = "c0d2b8b324684d1e69e72eaf01f69ff700e3396a"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/paulmach/orb"
+  packages = [
+    ".",
+    "geojson"
+  ]
+  revision = "40186a72e24c33c495ac9da7390b1a1e69670b40"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -77,13 +86,13 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["pbkdf2"]
-  revision = "613d6eafa307c6881a737a3c35c0e312e8d3a8c5"
+  revision = "ab813273cd59e1333f7ae7bff5d027d4aadf528c"
 
 [[projects]]
   name = "gopkg.in/ini.v1"
   packages = ["."]
-  revision = "6529cf7c58879c08d927016dde4477f18a0634cb"
-  version = "v1.36.0"
+  revision = "06f5f3d67269ccec1fe5fe4134ba6e982984f7f5"
+  version = "v1.37.0"
 
 [[projects]]
   name = "gopkg.in/macaron.v1"
@@ -94,6 +103,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f5bec6a01534beda6433f88516d1aad6fd8cf60aadf7c0fb8cb3b7c05d2d6600"
+  inputs-digest = "0d5731fcababcceb6de7665ace8583acf78ed73fc77d9c2adc5dca381b31fc53"
   solver-name = "gps-cdcl"
   solver-version = 1
